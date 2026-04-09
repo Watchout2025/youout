@@ -10,24 +10,36 @@ export interface ChannelData {
   created_at: string;
 }
 
+const isSupabaseConfigured = 
+  process.env.NEXT_PUBLIC_SUPABASE_URL && 
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
 export const ChannelService = {
   async getChannel(uid: string): Promise<ChannelData | null> {
-    const { data, error } = await supabase
-      .from('channels')
-      .select('*')
-      .eq('uid', uid)
-      .single();
+    if (!isSupabaseConfigured) return null;
 
-    if (error) {
-      if (error.code !== 'PGRST116') { // PGRST116 is "no rows returned"
-        console.error("Error fetching channel:", error);
+    try {
+      const { data, error } = await supabase
+        .from('channels')
+        .select('*')
+        .eq('uid', uid)
+        .single();
+
+      if (error) {
+        if (error.code !== 'PGRST116') {
+          console.error("Error fetching channel:", error);
+        }
+        return null;
       }
+      return data as ChannelData;
+    } catch (e) {
       return null;
     }
-    return data as ChannelData;
   },
 
   async createChannel(uid: string, name: string, handle: string, avatar: string): Promise<void> {
+    if (!isSupabaseConfigured) throw new Error("Supabase is not configured");
+
     const newChannel = {
       uid,
       name,
@@ -48,15 +60,21 @@ export const ChannelService = {
   },
 
   async isHandleAvailable(handle: string): Promise<boolean> {
-    const { data, error } = await supabase
-      .from('channels')
-      .select('handle')
-      .eq('handle', handle.toLowerCase());
+    if (!isSupabaseConfigured) return true;
 
-    if (error) {
-      console.error("Error checking handle availability:", error);
-      return false;
+    try {
+      const { data, error } = await supabase
+        .from('channels')
+        .select('handle')
+        .eq('handle', handle.toLowerCase());
+
+      if (error) {
+        console.error("Error checking handle availability:", error);
+        return true; // Assume available on error for better UX during outages/build
+      }
+      return data.length === 0;
+    } catch (e) {
+      return true;
     }
-    return data.length === 0;
   }
 };
