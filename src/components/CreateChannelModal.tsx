@@ -11,7 +11,7 @@ interface CreateChannelModalProps {
 }
 
 export default function CreateChannelModal({ isOpen, onClose }: CreateChannelModalProps) {
-  const { user, refreshChannel } = useAuth();
+  const { user, refreshChannel, setChannel } = useAuth();
   const [name, setName] = useState("");
   const [handle, setHandle] = useState("");
   const [isCheckingHandle, setIsCheckingHandle] = useState(false);
@@ -50,11 +50,29 @@ export default function CreateChannelModal({ isOpen, onClose }: CreateChannelMod
     setIsSubmitting(true);
     setError("");
     try {
-      await ChannelService.createChannel(user.uid, name, handle, user.photoURL || "");
-      await refreshChannel();
+      // 1. Create local optimistic data
+      const newChannelData = {
+        uid: user.uid,
+        name,
+        handle,
+        avatar: user.photoURL || "",
+        description: "",
+        subscribers: 0,
+        createdAt: new Date(),
+      };
+
+      // 2. Set state immediately (Instant UI update)
+      setChannel(newChannelData);
       onClose();
+
+      // 3. Perform actual creation in background
+      await ChannelService.createChannel(user.uid, name, handle, user.photoURL || "");
+      
+      // 4. Final sync
+      refreshChannel();
     } catch (err) {
       setError("Failed to create channel. Please try again.");
+      setChannel(null); // Rollback on error
       console.error(err);
     } finally {
       setIsSubmitting(false);

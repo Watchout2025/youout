@@ -19,6 +19,7 @@ interface AuthContextType {
   signIn: () => Promise<void>;
   logOut: () => Promise<void>;
   refreshChannel: () => Promise<void>;
+  setChannel: (channel: ChannelData | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -78,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, channel, loading, isChannelLoading, signIn, logOut, refreshChannel }}>
+    <AuthContext.Provider value={{ user, channel, loading, isChannelLoading, signIn, logOut, refreshChannel, setChannel }}>
       {children}
     </AuthContext.Provider>
   );
