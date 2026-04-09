@@ -5,13 +5,14 @@ import {
   LogOut, Settings, HelpCircle, 
   MessageSquare, Languages, ShieldAlert, Globe, 
   Keyboard, SquareUser, PlaySquare, DollarSign, 
-  UserCircle, Moon, ChevronRight
+  UserCircle, Moon, ChevronRight, Sun
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { useSidebar } from "@/context/SidebarContext";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "next-themes";
 import VoiceSearchModal from "./VoiceSearchModal";
 
 export default function Navbar() {
@@ -23,6 +24,7 @@ export default function Navbar() {
   const router = useRouter();
   const { toggleSidebar } = useSidebar();
   const { user, signIn, logOut } = useAuth();
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   // Close menu on click outside
   useEffect(() => {
@@ -51,28 +53,28 @@ export default function Navbar() {
 
   if (isMobileSearchOpen) {
     return (
-      <nav className="fixed top-0 left-0 right-0 bg-[#0f0f0f] h-14 flex items-center px-2 z-50 gap-2">
+      <nav className="fixed top-0 left-0 right-0 bg-background h-14 flex items-center px-2 z-50 gap-2 border-b border-border-custom">
         <button 
           onClick={() => setIsMobileSearchOpen(false)}
-          className="p-2 hover:bg-[#272727] rounded-full"
+          className="p-2 hover:bg-sidebar-hover rounded-full transition-colors"
         >
-          <ArrowLeft className="w-6 h-6 text-white" />
+          <ArrowLeft className="w-6 h-6 text-foreground" />
         </button>
-        <form onSubmit={handleSearch} className="flex-1 flex items-center bg-[#121212] rounded-full px-4 py-1.5 border border-[#303030]">
+        <form onSubmit={handleSearch} className="flex-1 flex items-center bg-background rounded-full px-4 py-1.5 border border-border-custom">
           <input
             type="text"
             autoFocus
             placeholder="Search YouOut"
-            className="w-full bg-transparent focus:outline-none text-base text-white placeholder-gray-400"
+            className="w-full bg-transparent focus:outline-none text-base text-foreground placeholder-gray-400"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </form>
         <button 
           onClick={() => setIsVoiceSearchOpen(true)}
-          className="p-2 bg-[#181818] rounded-full hover:bg-[#272727] transition-colors"
+          className="p-2 bg-sidebar-hover rounded-full hover:bg-sidebar-hover transition-colors"
         >
-          <Mic className="w-5 h-5 text-white" />
+          <Mic className="w-5 h-5 text-foreground" />
         </button>
         <VoiceSearchModal 
           isOpen={isVoiceSearchOpen} 
@@ -84,10 +86,10 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-[#0f0f0f] h-14 flex items-center justify-between px-4 z-50">
+    <nav className="fixed top-0 left-0 right-0 bg-background h-14 flex items-center justify-between px-4 z-50 border-b border-border-custom">
       <div className="flex items-center gap-4">
-        <button onClick={toggleSidebar} className="p-2 hover:bg-[#272727] rounded-full hidden md:block">
-          <Menu className="w-6 h-6 text-white" />
+        <button onClick={toggleSidebar} className="p-2 hover:bg-sidebar-hover rounded-full hidden md:block transition-colors">
+          <Menu className="w-6 h-6 text-foreground" />
         </button>
         <Link href="/" className="flex items-center gap-1 group">
           <div className="flex items-center">
@@ -96,65 +98,65 @@ export default function Navbar() {
               <path d="M19 10L11.5 5.75V14.25L19 10Z" fill="white"></path>
             </svg>
           </div>
-          <span className="font-bold text-xl tracking-tighter text-white">YouOut</span>
+          <span className="font-bold text-xl tracking-tighter text-foreground">YouOut</span>
         </Link>
       </div>
 
       <form onSubmit={handleSearch} className="flex-1 max-w-[600px] items-center gap-4 ml-10 hidden md:flex">
         <div className="flex flex-1 items-center">
-          <div className="flex flex-1 items-center border border-[#303030] bg-[#121212] rounded-l-full px-4 py-1.5 focus-within:border-blue-500 group transition-all duration-200 shadow-inner focus-within:shadow-[0_0_8px_rgba(59,130,246,0.5)]">
+          <div className="flex flex-1 items-center border border-border-custom bg-background rounded-l-full px-4 py-1.5 focus-within:border-blue-500 group transition-all duration-200 shadow-inner focus-within:shadow-[0_0_8px_rgba(59,130,246,0.3)]">
             <Search className="w-5 h-5 text-gray-400 mr-2 hidden group-focus-within:block" />
             <input
               type="text"
               placeholder="Search"
-              className="w-full bg-transparent focus:outline-none text-base text-white placeholder-gray-400"
+              className="w-full bg-transparent focus:outline-none text-base text-foreground placeholder-gray-400"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <button type="submit" className="bg-[#222222] border border-l-0 border-[#303030] rounded-r-full px-5 py-2 hover:bg-[#272727] transition-colors">
-            <Search className="w-5 h-5 text-white" />
+          <button type="submit" className="bg-sidebar-hover border border-l-0 border-border-custom rounded-r-full px-5 py-2 hover:bg-sidebar-hover/80 transition-colors">
+            <Search className="w-5 h-5 text-foreground" />
           </button>
         </div>
         <button 
           type="button" 
           onClick={() => setIsVoiceSearchOpen(true)}
-          className="p-2 bg-[#181818] hover:bg-[#272727] rounded-full transition-colors"
+          className="p-2 bg-sidebar-hover hover:bg-sidebar-hover/80 rounded-full transition-colors"
         >
-          <Mic className="w-5 h-5 text-white" />
+          <Mic className="w-5 h-5 text-foreground" />
         </button>
       </form>
 
       <div className="flex items-center gap-1 sm:gap-2">
         <button 
           onClick={() => setIsMobileSearchOpen(true)}
-          className="p-2 hover:bg-[#272727] rounded-full md:hidden"
+          className="p-2 hover:bg-sidebar-hover rounded-full md:hidden transition-colors"
         >
-          <Search className="w-6 h-6 text-white" />
+          <Search className="w-6 h-6 text-foreground" />
         </button>
-        <button className="p-2 hover:bg-[#272727] rounded-full hidden sm:block">
-          <Video className="w-6 h-6 text-white" />
+        <button className="p-2 hover:bg-sidebar-hover rounded-full hidden sm:block transition-colors">
+          <Video className="w-6 h-6 text-foreground" />
         </button>
-        <button className="p-2 hover:bg-[#272727] rounded-full">
-          <Bell className="w-6 h-6 text-white" />
+        <button className="p-2 hover:bg-sidebar-hover rounded-full transition-colors">
+          <Bell className="w-6 h-6 text-foreground" />
         </button>
         
         {user ? (
           <div className="relative" ref={userMenuRef}>
             <button 
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="p-1 hover:bg-[#272727] rounded-full ml-1 sm:ml-2"
+              className="p-1 hover:bg-sidebar-hover rounded-full ml-1 sm:ml-2 transition-colors"
             >
               <img 
                 src={user.photoURL || ""} 
                 alt={user.displayName || "User"} 
-                className="w-8 h-8 rounded-full border border-[#303030]"
+                className="w-8 h-8 rounded-full border border-border-custom"
               />
             </button>
             {isUserMenuOpen && (
-              <div className="absolute right-0 mt-2 w-72 bg-[#282828] rounded-xl shadow-2xl border border-[#303030] py-2 z-[60] overflow-y-auto max-h-[90vh]">
+              <div className="absolute right-0 mt-2 w-72 bg-background rounded-xl shadow-2xl border border-border-custom py-2 z-[60] overflow-y-auto max-h-[90vh]">
                 {/* User Header */}
-                <div className="flex gap-4 px-4 py-3 border-b border-[#303030] mb-2">
+                <div className="flex gap-4 px-4 py-3 border-b border-border-custom mb-2 text-foreground">
                   <img 
                     src={user.photoURL || ""} 
                     alt={user.displayName || "User"} 
@@ -170,7 +172,7 @@ export default function Navbar() {
                 </div>
 
                 {/* Section 1 */}
-                <div className="border-b border-[#303030] pb-2 mb-2">
+                <div className="border-b border-border-custom pb-2 mb-2">
                   <MenuButton icon={UserCircle} text="Google Account" />
                   <MenuButton icon={SquareUser} text="Switch account" />
                   <MenuButton 
@@ -181,15 +183,20 @@ export default function Navbar() {
                 </div>
 
                 {/* Section 2 */}
-                <div className="border-b border-[#303030] pb-2 mb-2">
+                <div className="border-b border-border-custom pb-2 mb-2">
                   <MenuButton icon={PlaySquare} text="YouTube Studio" />
                   <MenuButton icon={DollarSign} text="Purchases and memberships" />
                 </div>
 
                 {/* Section 3 */}
-                <div className="border-b border-[#303030] pb-2 mb-2">
+                <div className="border-b border-border-custom pb-2 mb-2">
                   <MenuButton icon={ShieldAlert} text="Your data in YouOut" />
-                  <MenuButton icon={Moon} text="Appearance: Device theme" hasChevron />
+                  <MenuButton 
+                    icon={resolvedTheme === 'dark' ? Moon : Sun} 
+                    text={`Appearance: ${resolvedTheme === 'dark' ? 'Dark' : 'Light'}`} 
+                    hasChevron 
+                    onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+                  />
                   <MenuButton icon={Languages} text="Language: English" hasChevron />
                   <MenuButton icon={ShieldAlert} text="Restricted Mode: Off" hasChevron />
                   <MenuButton icon={Globe} text="Location: United States" hasChevron />
@@ -201,7 +208,7 @@ export default function Navbar() {
                   <MenuButton icon={Settings} text="Settings" />
                 </div>
                 
-                <div className="border-t border-[#303030] pt-2">
+                <div className="border-t border-border-custom pt-2">
                   <MenuButton icon={HelpCircle} text="Help" />
                   <MenuButton icon={MessageSquare} text="Send feedback" />
                 </div>
@@ -211,7 +218,7 @@ export default function Navbar() {
         ) : (
           <button 
             onClick={signIn}
-            className="flex items-center gap-2 ml-1 sm:ml-2 px-3 py-1.5 border border-[#303030] rounded-full text-[#3ea6ff] hover:bg-[#263850] hover:border-[#263850] transition-all text-sm font-medium"
+            className="flex items-center gap-2 ml-1 sm:ml-2 px-3 py-1.5 border border-border-custom rounded-full text-[#3ea6ff] hover:bg-[#3ea6ff]/10 hover:border-[#3ea6ff] transition-all text-sm font-medium"
           >
             <div className="w-6 h-6 rounded-full border border-current flex items-center justify-center">
               <span className="text-[10px]">👤</span>
@@ -234,7 +241,7 @@ function MenuButton({ icon: Icon, text, onClick, hasChevron }: { icon: any, text
   return (
     <button 
       onClick={onClick}
-      className="w-full flex items-center gap-4 px-4 py-2 hover:bg-[#3f3f3f] transition-colors text-sm font-normal text-white"
+      className="w-full flex items-center gap-4 px-4 py-2 hover:bg-sidebar-hover transition-colors text-sm font-normal text-foreground"
     >
       <Icon className="w-6 h-6 stroke-[1.2px]" />
       <span className="flex-1 text-left">{text}</span>

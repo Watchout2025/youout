@@ -7,6 +7,7 @@ import MainContent from "@/components/MainContent";
 import MobileNav from "@/components/MobileNav";
 import { SidebarProvider } from "@/context/SidebarContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -70,21 +71,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#0f0f0f] text-white`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground transition-colors duration-300`}
       >
         <AuthProvider>
-          <SidebarProvider>
-            <Navbar />
-            <div className="pt-14 pb-12 md:pb-0">
-              <Sidebar />
-              <MainContent>
-                {children}
-              </MainContent>
-            </div>
-            <MobileNav />
-          </SidebarProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SidebarProvider>
+              <Navbar />
+              <div className="pt-14 pb-12 md:pb-0">
+                <Sidebar />
+                <MainContent>
+                  {children}
+                </MainContent>
+              </div>
+              <MobileNav />
+            </SidebarProvider>
+          </ThemeProvider>
         </AuthProvider>
       </body>
     </html>
