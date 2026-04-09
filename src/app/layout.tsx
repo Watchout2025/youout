@@ -23,7 +23,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "YouOut - Discover and Share Videos  with the world",
+    default: "YouOut",
     template: "%s | YouOut"
   },
   description: "YouOut is a Video Sharing Platform Let lets you share Videos Anonymously with the world.",
