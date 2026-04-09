@@ -1,5 +1,3 @@
-import { supabase } from "./supabase";
-
 export interface ChannelData {
   uid: string;
   name: string;
@@ -10,71 +8,42 @@ export interface ChannelData {
   created_at: string;
 }
 
-const isSupabaseConfigured = 
-  process.env.NEXT_PUBLIC_SUPABASE_URL && 
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const STORAGE_KEY = "youout_channels";
 
 export const ChannelService = {
+  _getAll(): Record<string, ChannelData> {
+    if (typeof window === "undefined") return {};
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : {};
+  },
+
+  _saveAll(channels: Record<string, ChannelData>) {
+    if (typeof window === "undefined") return;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(channels));
+  },
+
   async getChannel(uid: string): Promise<ChannelData | null> {
-    if (!isSupabaseConfigured) return null;
-
-    try {
-      const { data, error } = await supabase
-        .from('channels')
-        .select('*')
-        .eq('uid', uid)
-        .single();
-
-      if (error) {
-        if (error.code !== 'PGRST116') {
-          console.error("Error fetching channel:", error);
-        }
-        return null;
-      }
-      return data as ChannelData;
-    } catch (e) {
-      return null;
-    }
+    const channels = this._getAll();
+    return channels[uid] || null;
   },
 
   async createChannel(uid: string, name: string, handle: string, avatar: string): Promise<void> {
-    if (!isSupabaseConfigured) throw new Error("Supabase is not configured");
-
-    const newChannel = {
+    const channels = this._getAll();
+    channels[uid] = {
       uid,
       name,
       handle: handle.toLowerCase().replace(/[^a-z0-9_]/g, ""),
       avatar,
       description: "",
       subscribers: 0,
+      created_at: new Date().toISOString(),
     };
-
-    const { error } = await supabase
-      .from('channels')
-      .insert([newChannel]);
-
-    if (error) {
-      console.error("Error creating channel:", error);
-      throw error;
-    }
+    this._saveAll(channels);
   },
 
   async isHandleAvailable(handle: string): Promise<boolean> {
-    if (!isSupabaseConfigured) return true;
-
-    try {
-      const { data, error } = await supabase
-        .from('channels')
-        .select('handle')
-        .eq('handle', handle.toLowerCase());
-
-      if (error) {
-        console.error("Error checking handle availability:", error);
-        return true; // Assume available on error for better UX during outages/build
-      }
-      return data.length === 0;
-    } catch (e) {
-      return true;
-    }
+    const channels = this._getAll();
+    const lowHandle = handle.toLowerCase();
+    return !Object.values(channels).some(c => c.handle === lowHandle);
   }
 };

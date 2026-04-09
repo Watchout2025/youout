@@ -1,15 +1,14 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { 
-  auth, 
-  googleProvider, 
-  signInWithPopup, 
-  signOut, 
-  onAuthStateChanged,
-  User 
-} from "@/lib/firebase";
 import { ChannelData, ChannelService } from "@/lib/channelService";
+
+export interface User {
+  uid: string;
+  displayName: string | null;
+  photoURL: string | null;
+  email: string | null;
+}
 
 interface AuthContextType {
   user: User | null;
@@ -24,11 +23,23 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const AUTH_KEY = "youout_auth_user";
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [channel, setChannel] = useState<ChannelData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isChannelLoading, setIsChannelLoading] = useState(false);
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem(AUTH_KEY);
+    if (savedUser) {
+      const parsedUser = JSON.parse(savedUser);
+      setUser(parsedUser);
+      fetchChannel(parsedUser.uid);
+    }
+    setLoading(false);
+  }, []);
 
   const fetchChannel = async (uid: string) => {
     setIsChannelLoading(true);
@@ -42,20 +53,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        fetchChannel(currentUser.uid);
-      } else {
-        setChannel(null);
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
   const refreshChannel = async () => {
     if (user) {
       await fetchChannel(user.uid);
@@ -63,19 +60,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signIn = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-      console.error("Sign in error:", error);
-    }
+    // Generate a random anonymous user
+    const anonymousUser: User = {
+      uid: "anon_" + Math.random().toString(36).substring(2, 11),
+      displayName: "Guest User",
+      photoURL: `https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`,
+      email: null,
+    };
+    setUser(anonymousUser);
+    localStorage.setItem(AUTH_KEY, JSON.stringify(anonymousUser));
+    await fetchChannel(anonymousUser.uid);
   };
 
   const logOut = async () => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error("Sign out error:", error);
-    }
+    setUser(null);
+    setChannel(null);
+    localStorage.removeItem(AUTH_KEY);
   };
 
   return (

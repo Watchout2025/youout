@@ -218,7 +218,7 @@ export default function Navbar() {
                   />
                   <div className="flex flex-col overflow-hidden">
                     <p className="text-base font-normal truncate">{channel?.name || user.displayName}</p>
-                    <p className="text-sm text-[#aaaaaa] truncate mb-2">{channel ? `@${channel.handle}` : user.email}</p>
+                    <p className="text-sm text-[#aaaaaa] truncate mb-2">{channel ? `@${channel.handle}` : "Guest Account"}</p>
                     {channel ? (
                       <Link href={`/channel/@${channel.handle}`} className="text-sm text-[#3ea6ff] hover:text-[#71bbff]">
                         View your channel
@@ -236,18 +236,18 @@ export default function Navbar() {
 
                 {/* Section 1 */}
                 <div className="border-b border-border-custom pb-2 mb-2">
-                  <MenuButton icon={UserCircle} text="Google Account" />
-                  <MenuButton icon={SquareUser} text="Switch account" />
+                  <MenuButton icon={UserCircle} text="Account Settings" />
+                  <MenuButton icon={SquareUser} text="Switch profile" />
                   <MenuButton 
                     icon={LogOut} 
-                    text="Sign out" 
+                    text="Logout" 
                     onClick={() => { logOut(); setIsUserMenuOpen(false); }} 
                   />
                 </div>
 
                 {/* Section 2 */}
                 <div className="border-b border-border-custom pb-2 mb-2">
-                  <MenuButton icon={PlaySquare} text="YouTube Studio" />
+                  <MenuButton icon={PlaySquare} text="Creator Studio" />
                   <MenuButton icon={DollarSign} text="Purchases and memberships" />
                 </div>
 

@@ -35,15 +35,9 @@ export default function CreateChannelModal({ isOpen, onClose }: CreateChannelMod
 
     const timer = setTimeout(async () => {
       setIsCheckingHandle(true);
-      try {
-        const available = await ChannelService.isHandleAvailable(handle);
-        setHandleStatus(available ? "available" : "taken");
-      } catch (e) {
-        console.warn("Handle check failed, assuming available for UX", e);
-        setHandleStatus("available");
-      } finally {
-        setIsCheckingHandle(false);
-      }
+      const available = await ChannelService.isHandleAvailable(handle);
+      setHandleStatus(available ? "available" : "taken");
+      setIsCheckingHandle(false);
     }, 400);
 
     return () => clearTimeout(timer);
@@ -51,7 +45,6 @@ export default function CreateChannelModal({ isOpen, onClose }: CreateChannelMod
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Allow if it's not explicitly "taken" - Supabase will error if there's a real conflict
     if (!user || handleStatus === "taken" || !name || handle.length < 3) return;
 
     setIsSubmitting(true);
@@ -67,27 +60,14 @@ export default function CreateChannelModal({ isOpen, onClose }: CreateChannelMod
         created_at: new Date().toISOString(),
       };
 
+      // Set state immediately (Local Storage is fast)
+      await ChannelService.createChannel(user.uid, name, handle, user.photoURL || "");
       setChannel(newChannelData);
       onClose();
-
-      await ChannelService.createChannel(user.uid, name, handle, user.photoURL || "");
       refreshChannel();
     } catch (err: any) {
-      setChannel(null);
-      console.error("Full error object:", err);
-      
-      let msg = "Failed to create channel. ";
-      if (err.code === '23505') {
-        msg = "This handle is already taken.";
-      } else if (err.code === '42P01') {
-        msg = "Database table 'channels' not found. Please check setup.";
-      } else if (err.message) {
-        msg += err.message;
-      }
-      
-      setError(msg);
-      // Re-open modal if it was closed optimistically but failed
-      // Note: In a real app you might want to handle this more elegantly
+      setError("Failed to create channel locally.");
+      console.error(err);
     } finally {
       setIsSubmitting(false);
     }
