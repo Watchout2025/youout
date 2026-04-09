@@ -60,9 +60,9 @@ export default function Navbar() {
         </Link>
       </div>
 
-      <form onSubmit={handleSearch} className="flex-1 max-w-[600px] focus-within:max-w-[640px] focus-within:ml-6 items-center gap-4 ml-10 hidden md:flex transition-all duration-300">
+      <form onSubmit={handleSearch} className="flex-1 max-w-[600px] items-center gap-4 ml-10 hidden md:flex">
         <div className="flex flex-1 items-center">
-          <div className="flex flex-1 items-center border border-[#303030] bg-[#121212] rounded-l-full px-4 py-1.5 focus-within:border-blue-500 focus-within:ml-0 group transition-all duration-200 shadow-inner focus-within:shadow-[0_0_8px_rgba(59,130,246,0.5)]">
+          <div className="flex flex-1 items-center border border-[#303030] bg-[#121212] rounded-l-full px-4 py-1.5 focus-within:border-blue-500 group transition-all duration-200 shadow-inner focus-within:shadow-[0_0_8px_rgba(59,130,246,0.5)]">
             <Search className="w-5 h-5 text-gray-400 mr-2 hidden group-focus-within:block" />
             <input
               type="text"
