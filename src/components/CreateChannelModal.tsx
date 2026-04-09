@@ -73,15 +73,21 @@ export default function CreateChannelModal({ isOpen, onClose }: CreateChannelMod
       await ChannelService.createChannel(user.uid, name, handle, user.photoURL || "");
       refreshChannel();
     } catch (err: any) {
-      // If Supabase unique constraint fails
-      if (err.code === '23505') {
-        setError("This handle is already taken. Please choose another.");
-        setHandleStatus("taken");
-      } else {
-        setError("Failed to create channel. Please try again.");
-      }
       setChannel(null);
-      console.error(err);
+      console.error("Full error object:", err);
+      
+      let msg = "Failed to create channel. ";
+      if (err.code === '23505') {
+        msg = "This handle is already taken.";
+      } else if (err.code === '42P01') {
+        msg = "Database table 'channels' not found. Please check setup.";
+      } else if (err.message) {
+        msg += err.message;
+      }
+      
+      setError(msg);
+      // Re-open modal if it was closed optimistically but failed
+      // Note: In a real app you might want to handle this more elegantly
     } finally {
       setIsSubmitting(false);
     }
