@@ -58,7 +58,7 @@ export default function CreateChannelModal({ isOpen, onClose }: CreateChannelMod
         avatar: user.photoURL || "",
         description: "",
         subscribers: 0,
-        createdAt: new Date(),
+        created_at: new Date().toISOString(),
       };
 
       // 2. Set state immediately (Instant UI update)

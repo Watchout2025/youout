@@ -1,4 +1,4 @@
-import { db, doc, getDoc, setDoc, collection, query, where, getDocs, serverTimestamp } from "./firebase";
+import { supabase } from "./supabase";
 
 export interface ChannelData {
   uid: string;
@@ -7,33 +7,56 @@ export interface ChannelData {
   avatar: string;
   description: string;
   subscribers: number;
-  createdAt: any;
+  created_at: string;
 }
 
 export const ChannelService = {
   async getChannel(uid: string): Promise<ChannelData | null> {
-    const docRef = doc(db, "channels", uid);
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? (docSnap.data() as ChannelData) : null;
+    const { data, error } = await supabase
+      .from('channels')
+      .select('*')
+      .eq('uid', uid)
+      .single();
+
+    if (error) {
+      if (error.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+        console.error("Error fetching channel:", error);
+      }
+      return null;
+    }
+    return data as ChannelData;
   },
 
   async createChannel(uid: string, name: string, handle: string, avatar: string): Promise<void> {
-    const docRef = doc(db, "channels", uid);
-    const newChannel: ChannelData = {
+    const newChannel = {
       uid,
       name,
       handle: handle.toLowerCase().replace(/[^a-z0-9_]/g, ""),
       avatar,
       description: "",
       subscribers: 0,
-      createdAt: serverTimestamp(),
     };
-    await setDoc(docRef, newChannel);
+
+    const { error } = await supabase
+      .from('channels')
+      .insert([newChannel]);
+
+    if (error) {
+      console.error("Error creating channel:", error);
+      throw error;
+    }
   },
 
   async isHandleAvailable(handle: string): Promise<boolean> {
-    const q = query(collection(db, "channels"), where("handle", "==", handle.toLowerCase()));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.empty;
+    const { data, error } = await supabase
+      .from('channels')
+      .select('handle')
+      .eq('handle', handle.toLowerCase());
+
+    if (error) {
+      console.error("Error checking handle availability:", error);
+      return false;
+    }
+    return data.length === 0;
   }
 };
