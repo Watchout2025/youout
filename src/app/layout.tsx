@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     default: "YouOut - Discover and Share Videos  with the world",
     template: "%s | YouOut"
   },
-  description: "YouOut is Video Sharing Platform Let lets you share Videos Anonymously with the world.",
+  description: "YouOut is a Video Sharing Platform Let lets you share Videos Anonymously with the world.",
   keywords: ["Youout", "Youout App", "watch movies online", "free movies", "watch TV shows", "HD movies", "4K movies", "Hindi movies", "English movies", "BluRay", "stream online", "YouOut"],
   authors: [{ name: "YouOut" }],
   robots: {
