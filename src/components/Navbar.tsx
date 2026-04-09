@@ -5,7 +5,7 @@ import {
   LogOut, Settings, HelpCircle, 
   MessageSquare, Languages, ShieldAlert, Globe, 
   Keyboard, SquareUser, PlaySquare, DollarSign, 
-  UserCircle, Moon, ChevronRight, Sun
+  UserCircle, Moon, ChevronRight, Sun, History, X
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,6 +13,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSidebar } from "@/context/SidebarContext";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "next-themes";
+import { VideoService } from "@/lib/videoService";
 import VoiceSearchModal from "./VoiceSearchModal";
 import NProgress from "nprogress";
 
@@ -21,17 +22,28 @@ export default function Navbar() {
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isVoiceSearchOpen, setIsVoiceSearchOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { toggleSidebar } = useSidebar();
   const { user, signIn, logOut } = useAuth();
   const { theme, setTheme, resolvedTheme } = useTheme();
 
-  // Close menu on click outside
+  useEffect(() => {
+    setRecentSearches(VideoService.getRecentSearches());
+  }, [isSearchFocused]);
+
+  // Close menus on click outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
+      }
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -42,10 +54,18 @@ export default function Navbar() {
     e?.preventDefault();
     const finalQuery = query || searchQuery;
     if (finalQuery.trim()) {
+      VideoService.addRecentSearch(finalQuery.trim());
       NProgress.start();
-      router.push(`/results?search_query=${encodeURIComponent(finalQuery)}`);
+      router.push(`/results?search_query=${encodeURIComponent(finalQuery.trim())}`);
       setIsMobileSearchOpen(false);
+      setIsSearchFocused(false);
     }
+  };
+
+  const removeRecentSearch = (e: React.MouseEvent, query: string) => {
+    e.stopPropagation();
+    VideoService.removeRecentSearch(query);
+    setRecentSearches(VideoService.getRecentSearches());
   };
 
   const handleVoiceResult = (text: string) => {
@@ -104,30 +124,57 @@ export default function Navbar() {
         </Link>
       </div>
 
-      <form onSubmit={handleSearch} className="flex-1 max-w-[600px] items-center gap-4 ml-10 hidden md:flex">
-        <div className="flex flex-1 items-center">
-          <div className="flex flex-1 items-center border border-border-custom bg-background rounded-l-full px-4 py-1.5 focus-within:border-blue-500 group transition-all duration-200 shadow-inner focus-within:shadow-[0_0_8px_rgba(59,130,246,0.3)]">
-            <Search className="w-5 h-5 text-gray-400 mr-2 hidden group-focus-within:block" />
+      <div className="flex-1 max-w-[600px] relative mx-4 hidden md:block" ref={searchRef}>
+        <form onSubmit={handleSearch} className="flex items-center w-full">
+          <div className={`flex flex-1 items-center border border-border-custom bg-background rounded-l-full px-4 py-1.5 focus-within:border-blue-500 group transition-all duration-200 shadow-inner ${isSearchFocused ? 'ml-0' : 'ml-0'}`}>
+            <Search className={`w-5 h-5 text-gray-400 mr-2 ${isSearchFocused ? 'block' : 'hidden'}`} />
             <input
               type="text"
               placeholder="Search"
               className="w-full bg-transparent focus:outline-none text-base text-foreground placeholder-gray-400"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
             />
           </div>
-          <button type="submit" className="bg-sidebar-hover border border-l-0 border-border-custom rounded-r-full px-5 py-2 hover:bg-sidebar-hover/80 transition-colors">
+          <button type="submit" className="bg-sidebar-hover border border-l-0 border-border-custom rounded-r-full px-5 py-2 hover:bg-sidebar-hover/80 transition-colors h-[38px] flex items-center justify-center">
             <Search className="w-5 h-5 text-foreground" />
           </button>
-        </div>
-        <button 
-          type="button" 
-          onClick={() => setIsVoiceSearchOpen(true)}
-          className="p-2 bg-sidebar-hover hover:bg-sidebar-hover/80 rounded-full transition-colors"
-        >
-          <Mic className="w-5 h-5 text-foreground" />
-        </button>
-      </form>
+          
+          <button 
+            type="button" 
+            onClick={() => setIsVoiceSearchOpen(true)}
+            className="p-2 bg-sidebar-hover hover:bg-sidebar-hover/80 rounded-full transition-colors ml-4"
+          >
+            <Mic className="w-5 h-5 text-foreground" />
+          </button>
+        </form>
+
+        {/* Search Dropdown */}
+        {isSearchFocused && recentSearches.length > 0 && (
+          <div className="absolute top-[calc(100%+4px)] left-0 right-14 bg-background border border-border-custom rounded-xl shadow-2xl py-3 z-[100] overflow-hidden transition-all animate-in fade-in slide-in-from-top-1 duration-200">
+            {recentSearches.map((query, index) => (
+              <div 
+                key={index}
+                className="flex items-center px-4 py-1.5 hover:bg-sidebar-hover cursor-pointer group transition-colors"
+                onClick={() => {
+                  setSearchQuery(query);
+                  handleSearch(undefined, query);
+                }}
+              >
+                <History className="w-4 h-4 text-[#aaaaaa] mr-4 flex-shrink-0" />
+                <span className="flex-1 text-base font-medium text-foreground truncate">{query}</span>
+                <button 
+                  onClick={(e) => removeRecentSearch(e, query)}
+                  className="hidden group-hover:block p-1 hover:bg-border-custom rounded-full text-blue-400 text-xs"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div className="flex items-center gap-1 sm:gap-2">
         <button 

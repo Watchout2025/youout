@@ -6,19 +6,37 @@ const STORAGE_KEYS = {
   HISTORY: "youout_history",
   WATCH_LATER: "youout_watch_later",
   LIKED: "youout_liked",
+  SEARCHES: "youout_recent_searches",
 };
 
 export const VideoService = {
   // Common internal methods
-  _get(key: string): Video[] {
+  _get(key: string): any[] {
     if (typeof window === "undefined") return [];
     const data = localStorage.getItem(key);
     return data ? JSON.parse(data) : [];
   },
 
-  _save(key: string, videos: Video[]) {
+  _save(key: string, data: any[]) {
     if (typeof window === "undefined") return;
-    localStorage.setItem(key, JSON.stringify(videos));
+    localStorage.setItem(key, JSON.stringify(data));
+  },
+
+  // Recent Searches
+  addRecentSearch(query: string) {
+    if (!query.trim()) return;
+    const searches = this._get(STORAGE_KEYS.SEARCHES);
+    const filtered = searches.filter((s) => s !== query);
+    this._save(STORAGE_KEYS.SEARCHES, [query, ...filtered].slice(0, 10));
+  },
+
+  getRecentSearches(): string[] {
+    return this._get(STORAGE_KEYS.SEARCHES);
+  },
+
+  removeRecentSearch(query: string) {
+    const searches = this._get(STORAGE_KEYS.SEARCHES);
+    this._save(STORAGE_KEYS.SEARCHES, searches.filter((s) => s !== query));
   },
 
   // History
