@@ -6,6 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import MainContent from "@/components/MainContent";
 import MobileNav from "@/components/MobileNav";
 import { SidebarProvider } from "@/context/SidebarContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -73,16 +74,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#0f0f0f] text-white`}
       >
-        <SidebarProvider>
-          <Navbar />
-          <div className="pt-14 pb-12 md:pb-0">
-            <Sidebar />
-            <MainContent>
-              {children}
-            </MainContent>
-          </div>
-          <MobileNav />
-        </SidebarProvider>
+        <AuthProvider>
+          <SidebarProvider>
+            <Navbar />
+            <div className="pt-14 pb-12 md:pb-0">
+              <Sidebar />
+              <MainContent>
+                {children}
+              </MainContent>
+            </div>
+            <MobileNav />
+          </SidebarProvider>
+        </AuthProvider>
       </body>
     </html>
   );

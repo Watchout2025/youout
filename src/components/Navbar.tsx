@@ -5,14 +5,17 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useSidebar } from "@/context/SidebarContext";
+import { useAuth } from "@/context/AuthContext";
 import VoiceSearchModal from "./VoiceSearchModal";
 
 export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isVoiceSearchOpen, setIsVoiceSearchOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const router = useRouter();
   const { toggleSidebar } = useSidebar();
+  const { user, signIn, logOut } = useAuth();
 
   const handleSearch = (e?: React.FormEvent, query?: string) => {
     e?.preventDefault();
@@ -117,11 +120,45 @@ export default function Navbar() {
         <button className="p-2 hover:bg-[#272727] rounded-full">
           <Bell className="w-6 h-6 text-white" />
         </button>
-        <button className="p-2 hover:bg-[#272727] rounded-full ml-1 sm:ml-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm">
-            J
+        
+        {user ? (
+          <div className="relative">
+            <button 
+              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              className="p-1 hover:bg-[#272727] rounded-full ml-1 sm:ml-2"
+            >
+              <img 
+                src={user.photoURL || ""} 
+                alt={user.displayName || "User"} 
+                className="w-8 h-8 rounded-full border border-[#303030]"
+              />
+            </button>
+            {isUserMenuOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-[#282828] rounded-xl shadow-lg border border-[#303030] py-2 z-[60]">
+                <div className="px-4 py-2 border-b border-[#303030] mb-2">
+                  <p className="text-sm font-medium truncate">{user.displayName}</p>
+                  <p className="text-xs text-[#aaaaaa] truncate">{user.email}</p>
+                </div>
+                <button 
+                  onClick={() => { logOut(); setIsUserMenuOpen(false); }}
+                  className="w-full text-left px-4 py-2 hover:bg-[#3f3f3f] text-sm transition-colors"
+                >
+                  Sign out
+                </button>
+              </div>
+            )}
           </div>
-        </button>
+        ) : (
+          <button 
+            onClick={signIn}
+            className="flex items-center gap-2 ml-1 sm:ml-2 px-3 py-1.5 border border-[#303030] rounded-full text-[#3ea6ff] hover:bg-[#263850] hover:border-[#263850] transition-all text-sm font-medium"
+          >
+            <div className="w-6 h-6 rounded-full border border-current flex items-center justify-center">
+              <span className="text-[10px]">👤</span>
+            </div>
+            Sign in
+          </button>
+        )}
       </div>
       
       <VoiceSearchModal 
