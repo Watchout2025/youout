@@ -8,6 +8,8 @@ import MobileNav from "@/components/MobileNav";
 import { SidebarProvider } from "@/context/SidebarContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import PageProgressBar from "@/components/PageProgressBar";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -82,6 +84,9 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <Suspense fallback={null}>
+              <PageProgressBar />
+            </Suspense>
             <SidebarProvider>
               <Navbar />
               <div className="pt-14 pb-12 md:pb-0">

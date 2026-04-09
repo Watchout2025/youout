@@ -31,3 +31,13 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* NProgress Custom Styling */
+#nprogress .bar {
+  background: #ff0000 !important;
+  height: 2px !important;
+}
+
+#nprogress .peg {
+  box-shadow: 0 0 10px #ff0000, 0 0 5px #ff0000 !important;
+}
