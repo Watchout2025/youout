@@ -136,8 +136,11 @@ export default function Navbar() {
         >
           <Search className="w-6 h-6 text-foreground" />
         </button>
-        <button className="p-2 hover:bg-sidebar-hover rounded-full hidden sm:block transition-colors">
-          <Video className="w-6 h-6 text-foreground" />
+        <button className="flex items-center gap-2 px-3 py-1.5 hover:bg-sidebar-hover rounded-full transition-colors hidden sm:flex">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" focusable="false" className="fill-foreground">
+            <path d="M12 3a1 1 0 00-1 1v7H4a1 1 0 000 2h7v7a1 1 0 002 0v-7h7a1 1 0 000-2h-7V4a1 1 0 00-1-1Z"></path>
+          </svg>
+          <span className="text-sm font-medium text-foreground">Create</span>
         </button>
         <button className="p-2 hover:bg-sidebar-hover rounded-full transition-colors">
           <Bell className="w-6 h-6 text-foreground" />
