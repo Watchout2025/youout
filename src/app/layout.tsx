@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "YouOut - Experience Video Like Never Before",
+    default: "YouOut - Watch Movies, TV Shows, Animes & Dramas Online",
     template: "%s | YouOut"
   },
   description: "YouOut – Watch free movies and TV shows online in HD. Stream the latest releases in 4K, Hindi, English, BluRay and more.",
