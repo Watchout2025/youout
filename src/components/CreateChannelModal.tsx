@@ -35,22 +35,28 @@ export default function CreateChannelModal({ isOpen, onClose }: CreateChannelMod
 
     const timer = setTimeout(async () => {
       setIsCheckingHandle(true);
-      const available = await ChannelService.isHandleAvailable(handle);
-      setHandleStatus(available ? "available" : "taken");
-      setIsCheckingHandle(false);
-    }, 500);
+      try {
+        const available = await ChannelService.isHandleAvailable(handle);
+        setHandleStatus(available ? "available" : "taken");
+      } catch (e) {
+        console.warn("Handle check failed, assuming available for UX", e);
+        setHandleStatus("available");
+      } finally {
+        setIsCheckingHandle(false);
+      }
+    }, 400);
 
     return () => clearTimeout(timer);
   }, [handle]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || handleStatus !== "available" || !name) return;
+    // Allow if it's not explicitly "taken" - Supabase will error if there's a real conflict
+    if (!user || handleStatus === "taken" || !name || handle.length < 3) return;
 
     setIsSubmitting(true);
     setError("");
     try {
-      // 1. Create local optimistic data
       const newChannelData = {
         uid: user.uid,
         name,
@@ -61,18 +67,20 @@ export default function CreateChannelModal({ isOpen, onClose }: CreateChannelMod
         created_at: new Date().toISOString(),
       };
 
-      // 2. Set state immediately (Instant UI update)
       setChannel(newChannelData);
       onClose();
 
-      // 3. Perform actual creation in background
       await ChannelService.createChannel(user.uid, name, handle, user.photoURL || "");
-      
-      // 4. Final sync
       refreshChannel();
-    } catch (err) {
-      setError("Failed to create channel. Please try again.");
-      setChannel(null); // Rollback on error
+    } catch (err: any) {
+      // If Supabase unique constraint fails
+      if (err.code === '23505') {
+        setError("This handle is already taken. Please choose another.");
+        setHandleStatus("taken");
+      } else {
+        setError("Failed to create channel. Please try again.");
+      }
+      setChannel(null);
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -145,7 +153,7 @@ export default function CreateChannelModal({ isOpen, onClose }: CreateChannelMod
             </div>
           </div>
 
-          {error && <p className="mt-4 text-sm text-red-500 text-center">{error}</p>}
+          {error && <p className="mt-4 text-sm text-red-500 text-center font-medium bg-red-500/10 p-2 rounded-lg">{error}</p>}
 
           <div className="mt-8 flex gap-3 justify-end">
             <button 
@@ -157,8 +165,8 @@ export default function CreateChannelModal({ isOpen, onClose }: CreateChannelMod
             </button>
             <button 
               type="submit"
-              disabled={isSubmitting || handleStatus !== "available" || !name}
-              className="px-6 py-2 bg-[#3ea6ff] text-[#0f0f0f] font-bold rounded-full hover:bg-[#71bbff] disabled:bg-[#333333] disabled:text-[#717171] transition-all"
+              disabled={isSubmitting || handleStatus === "taken" || !name || handle.length < 3}
+              className="px-6 py-2 bg-[#3ea6ff] text-[#0f0f0f] font-bold rounded-full hover:bg-[#71bbff] disabled:bg-sidebar-hover disabled:text-[#717171] transition-all"
             >
               {isSubmitting ? "Creating..." : "Create channel"}
             </button>
