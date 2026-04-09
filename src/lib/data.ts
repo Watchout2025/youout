@@ -66,6 +66,12 @@ interface ApiVideo {
   duration: number;
 }
 
+function getBaseUrl() {
+  if (typeof window !== "undefined") return ""; // browser should use relative url
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // SSR should use vercel url
+  return `http://localhost:3000`; // dev SSR should use localhost
+}
+
 export async function fetchVideos(search?: string, page: number = 1): Promise<Video[]> {
   try {
     let query = search;
@@ -77,7 +83,7 @@ export async function fetchVideos(search?: string, page: number = 1): Promise<Vi
         .replace(/^\.|\.$/g, "");
     }
 
-    const baseUrl = "https://youout.vercel.app/api/videos";
+    const baseUrl = `${getBaseUrl()}/api/videos`;
     const params = new URLSearchParams();
     if (query) params.append("search", query);
     params.append("page", page.toString());

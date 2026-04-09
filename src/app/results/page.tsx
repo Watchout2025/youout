@@ -2,6 +2,7 @@ import { fetchVideos } from "@/lib/data";
 import Link from "next/link";
 import { SlidersHorizontal } from "lucide-react";
 import { Metadata } from "next";
+import InfiniteScroll from "@/components/InfiniteScroll";
 
 type Props = {
   searchParams: Promise<{ search_query: string }>;
