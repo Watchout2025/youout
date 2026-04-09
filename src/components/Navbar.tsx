@@ -15,6 +15,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "next-themes";
 import { VideoService } from "@/lib/videoService";
 import VoiceSearchModal from "./VoiceSearchModal";
+import CreateChannelModal from "./CreateChannelModal";
 import NProgress from "nprogress";
 
 export default function Navbar() {
@@ -22,6 +23,7 @@ export default function Navbar() {
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isVoiceSearchOpen, setIsVoiceSearchOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isCreateChannelOpen, setIsCreateChannelOpen] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   
@@ -29,7 +31,7 @@ export default function Navbar() {
   const searchRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { toggleSidebar } = useSidebar();
-  const { user, signIn, logOut } = useAuth();
+  const { user, channel, signIn, logOut } = useAuth();
   const { theme, setTheme, resolvedTheme } = useTheme();
 
   useEffect(() => {
@@ -215,11 +217,20 @@ export default function Navbar() {
                     className="w-10 h-10 rounded-full"
                   />
                   <div className="flex flex-col overflow-hidden">
-                    <p className="text-base font-normal truncate">{user.displayName}</p>
-                    <p className="text-sm text-[#aaaaaa] truncate mb-2">{user.email}</p>
-                    <Link href="/channel" className="text-sm text-[#3ea6ff] hover:text-[#71bbff]">
-                      View your channel
-                    </Link>
+                    <p className="text-base font-normal truncate">{channel?.name || user.displayName}</p>
+                    <p className="text-sm text-[#aaaaaa] truncate mb-2">{channel ? `@${channel.handle}` : user.email}</p>
+                    {channel ? (
+                      <Link href={`/channel/@${channel.handle}`} className="text-sm text-[#3ea6ff] hover:text-[#71bbff]">
+                        View your channel
+                      </Link>
+                    ) : (
+                      <button 
+                        onClick={() => { setIsCreateChannelOpen(true); setIsUserMenuOpen(false); }}
+                        className="text-sm text-left text-[#3ea6ff] hover:text-[#71bbff]"
+                      >
+                        Create a channel
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -284,6 +295,11 @@ export default function Navbar() {
         isOpen={isVoiceSearchOpen} 
         onClose={() => setIsVoiceSearchOpen(false)} 
         onResult={handleVoiceResult}
+      />
+
+      <CreateChannelModal 
+        isOpen={isCreateChannelOpen}
+        onClose={() => setIsCreateChannelOpen(false)}
       />
     </nav>
   );

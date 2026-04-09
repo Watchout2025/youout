@@ -9,28 +9,57 @@ import {
   onAuthStateChanged,
   User 
 } from "@/lib/firebase";
+import { ChannelData, ChannelService } from "@/lib/channelService";
 
 interface AuthContextType {
   user: User | null;
+  channel: ChannelData | null;
   loading: boolean;
+  isChannelLoading: boolean;
   signIn: () => Promise<void>;
   logOut: () => Promise<void>;
+  refreshChannel: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [channel, setChannel] = useState<ChannelData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isChannelLoading, setIsChannelLoading] = useState(false);
+
+  const fetchChannel = async (uid: string) => {
+    setIsChannelLoading(true);
+    try {
+      const channelData = await ChannelService.getChannel(uid);
+      setChannel(channelData);
+    } catch (error) {
+      console.error("Error fetching channel:", error);
+    } finally {
+      setIsChannelLoading(false);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        fetchChannel(currentUser.uid);
+      } else {
+        setChannel(null);
+      }
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
+
+  const refreshChannel = async () => {
+    if (user) {
+      await fetchChannel(user.uid);
+    }
+  };
 
   const signIn = async () => {
     try {
@@ -49,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, logOut }}>
+    <AuthContext.Provider value={{ user, channel, loading, isChannelLoading, signIn, logOut, refreshChannel }}>
       {children}
     </AuthContext.Provider>
   );
