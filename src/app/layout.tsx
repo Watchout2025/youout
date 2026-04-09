@@ -22,12 +22,17 @@ export const metadata: Metadata = {
     default: "YouOut - Experience Video Like Never Before",
     template: "%s | YouOut"
   },
-  description: "YouOut is a premium video sharing platform for creators and viewers. Watch the latest trends, discover new music, and join a global community.",
-  keywords: ["video sharing", "youout", "streaming", "content creators", "watch videos"],
+  description: "YouOut – Watch free movies and TV shows online in HD. Stream the latest releases in 4K, Hindi, English, BluRay and more.",
+  keywords: ["Youout", "Youout App", "watch movies online", "free movies", "watch TV shows", "HD movies", "4K movies", "Hindi movies", "English movies", "BluRay", "stream online", "YouOut"],
   authors: [{ name: "YouOut Team" }],
+  icons: {
+    icon: "https://www.youtube.com/favicon.ico",
+    shortcut: "https://www.youtube.com/favicon.ico",
+    apple: "https://www.youtube.com/favicon.ico",
+  },
   openGraph: {
     title: "YouOut - Experience Video Like Never Before",
-    description: "Watch and share high-quality videos on YouOut.",
+    description: "YouOut – Watch free movies and TV shows online in HD. Stream the latest releases in 4K, Hindi, English, BluRay and more.",
     url: "https://youout.vercel.app",
     siteName: "YouOut",
     type: "website",
@@ -35,7 +40,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "YouOut",
-    description: "Experience the next generation of video sharing.",
+    description: "YouOut – Watch free movies and TV shows online in HD. Stream the latest releases in 4K, Hindi, English, BluRay and more.",
   },
 };
 
