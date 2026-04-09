@@ -2,7 +2,7 @@
 
 import { Video } from "@/lib/data";
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 
 interface VideoCardProps {
   video: Video;
@@ -10,45 +10,7 @@ interface VideoCardProps {
 
 export default function VideoCard({ video }: VideoCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const [avgColor, setAvgColor] = useState<string>("139, 94, 60"); // Default brown
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const imgRef = useRef<HTMLImageElement>(null);
-
-  // Extract average color from thumbnail
-  useEffect(() => {
-    const extractColor = () => {
-      if (!imgRef.current) return;
-      
-      try {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
-
-        canvas.width = 10; // Small size for performance
-        canvas.height = 10;
-        
-        ctx.drawImage(imgRef.current, 0, 0, 10, 10);
-        const data = ctx.getImageData(0, 0, 10, 10).data;
-        
-        let r = 0, g = 0, b = 0;
-        for (let i = 0; i < data.length; i += 4) {
-          r += data[i];
-          g += data[i + 1];
-          b += data[i + 2];
-        }
-        
-        const count = data.length / 4;
-        setAvgColor(`${Math.floor(r / count)}, ${Math.floor(g / count)}, ${Math.floor(b / count)}`);
-      } catch (e) {
-        // Fallback to default if CORS or other issues
-        console.warn("Could not extract color", e);
-      }
-    };
-
-    if (imgRef.current?.complete) {
-      extractColor();
-    }
-  }, [video.thumbnail]);
 
   const handleMouseEnter = () => {
     timeoutRef.current = setTimeout(() => {
@@ -64,10 +26,7 @@ export default function VideoCard({ video }: VideoCardProps) {
   return (
     <Link 
       href={`/watch?v=${video.id}`} 
-      className="flex flex-col gap-3 group p-2 rounded-xl transition-colors duration-500 ease-out"
-      style={{ 
-        backgroundColor: isHovered ? `rgba(${avgColor}, 0.1)` : "transparent"
-      }}
+      className="flex flex-col gap-3 group p-2 rounded-xl transition-all duration-300 ease-out hover:bg-sidebar-hover"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -83,22 +42,8 @@ export default function VideoCard({ video }: VideoCardProps) {
           />
         ) : (
           <img
-            ref={imgRef}
             src={video.thumbnail}
             alt={video.title}
-            crossOrigin="anonymous"
-            onLoad={(e) => {
-              // Trigger color extraction when image loads
-              const target = e.target as HTMLImageElement;
-              const canvas = document.createElement("canvas");
-              const ctx = canvas.getContext("2d");
-              if (!ctx) return;
-              canvas.width = 1;
-              canvas.height = 1;
-              ctx.drawImage(target, 0, 0, 1, 1);
-              const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-              setAvgColor(`${r}, ${g}, ${b}`);
-            }}
             className="w-full h-full object-cover"
           />
         )}
