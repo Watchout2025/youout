@@ -5,19 +5,27 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useSidebar } from "@/context/SidebarContext";
+import VoiceSearchModal from "./VoiceSearchModal";
 
 export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [isVoiceSearchOpen, setIsVoiceSearchOpen] = useState(false);
   const router = useRouter();
   const { toggleSidebar } = useSidebar();
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/results?search_query=${encodeURIComponent(searchQuery)}`);
+  const handleSearch = (e?: React.FormEvent, query?: string) => {
+    e?.preventDefault();
+    const finalQuery = query || searchQuery;
+    if (finalQuery.trim()) {
+      router.push(`/results?search_query=${encodeURIComponent(finalQuery)}`);
       setIsMobileSearchOpen(false);
     }
+  };
+
+  const handleVoiceResult = (text: string) => {
+    setSearchQuery(text);
+    handleSearch(undefined, text);
   };
 
   if (isMobileSearchOpen) {
@@ -39,9 +47,17 @@ export default function Navbar() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </form>
-        <button className="p-2 bg-[#181818] rounded-full">
+        <button 
+          onClick={() => setIsVoiceSearchOpen(true)}
+          className="p-2 bg-[#181818] rounded-full hover:bg-[#272727] transition-colors"
+        >
           <Mic className="w-5 h-5 text-white" />
         </button>
+        <VoiceSearchModal 
+          isOpen={isVoiceSearchOpen} 
+          onClose={() => setIsVoiceSearchOpen(false)} 
+          onResult={handleVoiceResult}
+        />
       </nav>
     );
   }
@@ -76,7 +92,11 @@ export default function Navbar() {
             <Search className="w-5 h-5 text-white" />
           </button>
         </div>
-        <button type="button" className="p-2 bg-[#181818] hover:bg-[#272727] rounded-full">
+        <button 
+          type="button" 
+          onClick={() => setIsVoiceSearchOpen(true)}
+          className="p-2 bg-[#181818] hover:bg-[#272727] rounded-full transition-colors"
+        >
           <Mic className="w-5 h-5 text-white" />
         </button>
       </form>
@@ -100,6 +120,12 @@ export default function Navbar() {
           </div>
         </button>
       </div>
+      
+      <VoiceSearchModal 
+        isOpen={isVoiceSearchOpen} 
+        onClose={() => setIsVoiceSearchOpen(false)} 
+        onResult={handleVoiceResult}
+      />
     </nav>
   );
 }
