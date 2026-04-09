@@ -26,7 +26,7 @@ export default function VideoCard({ video }: VideoCardProps) {
   return (
     <Link 
       href={`/watch?v=${video.id}`} 
-      className="flex flex-col gap-3 group"
+      className="flex flex-col gap-3 group p-2 rounded-xl hover:bg-[#8b5e3c]/5 dark:hover:bg-[#8b5e3c]/10 transition-colors duration-200"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -55,7 +55,7 @@ export default function VideoCard({ video }: VideoCardProps) {
         )}
       </div>
       
-      <div className="flex gap-3 px-3 sm:px-0">
+      <div className="flex gap-3">
         <div className="flex-shrink-0">
           <div className="w-9 h-9 rounded-full overflow-hidden bg-sidebar-hover border border-border-custom">
             <img src={video.channel.avatar} alt={video.channel.name} className="w-full h-full object-cover" />
