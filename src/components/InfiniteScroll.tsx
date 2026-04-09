@@ -52,7 +52,7 @@ export default function InfiniteScroll({ initialVideos, searchQuery }: InfiniteS
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 gap-y-8 mt-4 pb-10 px-0 sm:px-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-4 gap-y-10 mt-4 pb-10 px-0 sm:px-4">
         {videos.map((video, index) => (
           <VideoCard key={`${video.id}-${index}`} video={video} />
         ))}
