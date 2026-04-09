@@ -14,6 +14,7 @@ import { useSidebar } from "@/context/SidebarContext";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "next-themes";
 import VoiceSearchModal from "./VoiceSearchModal";
+import NProgress from "nprogress";
 
 export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -41,6 +42,7 @@ export default function Navbar() {
     e?.preventDefault();
     const finalQuery = query || searchQuery;
     if (finalQuery.trim()) {
+      NProgress.start();
       router.push(`/results?search_query=${encodeURIComponent(finalQuery)}`);
       setIsMobileSearchOpen(false);
     }
