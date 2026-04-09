@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     default: "YouOut - Watch Movies, TV Shows, Animes & Dramas Online",
     template: "%s | YouOut"
   },
-  description: "YouOut – Watch free movies and TV shows online in HD. Stream the latest releases in 4K, Hindi, English, BluRay and more.",
+  description: "YouOut is Video Sharing Platform Let lets you share Videos Anonymously with the world.",
   keywords: ["Youout", "Youout App", "watch movies online", "free movies", "watch TV shows", "HD movies", "4K movies", "Hindi movies", "English movies", "BluRay", "stream online", "YouOut"],
   authors: [{ name: "YouOut" }],
   robots: {
