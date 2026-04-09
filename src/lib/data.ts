@@ -66,12 +66,6 @@ interface ApiVideo {
   duration: number;
 }
 
-function getBaseUrl() {
-  if (typeof window !== "undefined") return ""; // browser should use relative url
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // SSR should use vercel url
-  return `http://localhost:3000`; // dev SSR should use localhost
-}
-
 export async function fetchVideos(search?: string, page: number = 1): Promise<Video[]> {
   try {
     let query = search;
@@ -83,15 +77,31 @@ export async function fetchVideos(search?: string, page: number = 1): Promise<Vi
         .replace(/^\.|\.$/g, "");
     }
 
-    const baseUrl = `${getBaseUrl()}/api/videos`;
     const params = new URLSearchParams();
     if (query) params.append("search", query);
     params.append("page", page.toString());
 
-    const url = `${baseUrl}?${params.toString()}`;
-
-    const res = await fetch(url);
-    const json = await res.json();
+    let json;
+    
+    // Server-side (during build or SSR)
+    if (typeof window === "undefined") {
+      const API_TOKEN = "adb3ca178449bc63c7ecbb66";
+      const url = `https://rpmshare.com/api/v1/video/manage?${params.toString()}`;
+      
+      const res = await fetch(url, {
+        headers: {
+          "api-token": API_TOKEN,
+          "accept": "application/json"
+        }
+      });
+      json = await res.json();
+    } 
+    // Client-side
+    else {
+      const url = `/api/videos?${params.toString()}`;
+      const res = await fetch(url);
+      json = await res.json();
+    }
 
     return json.data.map((item: ApiVideo) => ({
       id: item.id,
