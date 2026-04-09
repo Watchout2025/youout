@@ -179,116 +179,121 @@ export default function Navbar() {
       </div>
 
       <div className="flex items-center gap-1 sm:gap-2">
+        {/* Mobile Search Icon */}
         <button 
           onClick={() => setIsMobileSearchOpen(true)}
           className="p-2 hover:bg-sidebar-hover rounded-full md:hidden transition-colors"
         >
           <Search className="w-6 h-6 text-foreground" />
         </button>
-        <button className="flex items-center gap-2 px-3 py-1.5 hover:bg-sidebar-hover rounded-full transition-colors hidden sm:flex">
-          <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" focusable="false" className="fill-foreground">
-            <path d="M12 3a1 1 0 00-1 1v7H4a1 1 0 000 2h7v7a1 1 0 002 0v-7h7a1 1 0 000-2h-7V4a1 1 0 00-1-1Z"></path>
-          </svg>
-          <span className="text-sm font-medium text-foreground">Create</span>
-        </button>
-        <button className="p-2 hover:bg-sidebar-hover rounded-full transition-colors">
-          <Bell className="w-6 h-6 text-foreground" />
-        </button>
-        
-        {user ? (
-          <div className="relative" ref={userMenuRef}>
-            <button 
-              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="p-1 hover:bg-sidebar-hover rounded-full ml-1 sm:ml-2 transition-colors"
-            >
-              <img 
-                src={user.photoURL || ""} 
-                alt={user.displayName || "User"} 
-                className="w-8 h-8 rounded-full border border-border-custom"
-              />
-            </button>
-            {isUserMenuOpen && (
-              <div className="absolute right-0 mt-2 w-72 bg-background rounded-xl shadow-2xl border border-border-custom py-2 z-[60] overflow-y-auto max-h-[90vh]">
-                {/* User Header */}
-                <div className="flex gap-4 px-4 py-3 border-b border-border-custom mb-2 text-foreground">
-                  <img 
-                    src={user.photoURL || ""} 
-                    alt={user.displayName || "User"} 
-                    className="w-10 h-10 rounded-full"
-                  />
-                  <div className="flex flex-col overflow-hidden">
-                    <p className="text-base font-normal truncate">{channel?.name || user.displayName}</p>
-                    <p className="text-sm text-[#aaaaaa] truncate mb-2">{channel ? `@${channel.handle}` : "Guest Account"}</p>
-                    {channel ? (
-                      <Link href={`/channel/@${channel.handle}`} className="text-sm text-[#3ea6ff] hover:text-[#71bbff]">
-                        View your channel
-                      </Link>
-                    ) : (
-                      <button 
-                        onClick={() => { setIsCreateChannelOpen(true); setIsUserMenuOpen(false); }}
-                        className="text-sm text-left text-[#3ea6ff] hover:text-[#71bbff]"
-                      >
-                        Create a channel
-                      </button>
-                    )}
+
+        {/* Desktop Only Icons */}
+        <div className="hidden md:flex items-center gap-1 sm:gap-2">
+          <button className="flex items-center gap-2 px-3 py-1.5 hover:bg-sidebar-hover rounded-full transition-colors hidden sm:flex">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" focusable="false" className="fill-foreground">
+              <path d="M12 3a1 1 0 00-1 1v7H4a1 1 0 000 2h7v7a1 1 0 002 0v-7h7a1 1 0 000-2h-7V4a1 1 0 00-1-1Z"></path>
+            </svg>
+            <span className="text-sm font-medium text-foreground">Create</span>
+          </button>
+          <button className="p-2 hover:bg-sidebar-hover rounded-full transition-colors">
+            <Bell className="w-6 h-6 text-foreground" />
+          </button>
+          
+          {user ? (
+            <div className="relative" ref={userMenuRef}>
+              <button 
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="p-1 hover:bg-sidebar-hover rounded-full ml-1 sm:ml-2 transition-colors"
+              >
+                <img 
+                  src={user.photoURL || ""} 
+                  alt={user.displayName || "User"} 
+                  className="w-8 h-8 rounded-full border border-border-custom"
+                />
+              </button>
+              {isUserMenuOpen && (
+                <div className="absolute right-0 mt-2 w-72 bg-background rounded-xl shadow-2xl border border-border-custom py-2 z-[60] overflow-y-auto max-h-[90vh]">
+                  {/* User Header */}
+                  <div className="flex gap-4 px-4 py-3 border-b border-border-custom mb-2 text-foreground">
+                    <img 
+                      src={user.photoURL || ""} 
+                      alt={user.displayName || "User"} 
+                      className="w-10 h-10 rounded-full"
+                    />
+                    <div className="flex flex-col overflow-hidden">
+                      <p className="text-base font-normal truncate">{channel?.name || user.displayName}</p>
+                      <p className="text-sm text-[#aaaaaa] truncate mb-2">{channel ? `@${channel.handle}` : "Guest Account"}</p>
+                      {channel ? (
+                        <Link href={`/channel/@${channel.handle}`} className="text-sm text-[#3ea6ff] hover:text-[#71bbff]">
+                          View your channel
+                        </Link>
+                      ) : (
+                        <button 
+                          onClick={() => { setIsCreateChannelOpen(true); setIsUserMenuOpen(false); }}
+                          className="text-sm text-left text-[#3ea6ff] hover:text-[#71bbff]"
+                        >
+                          Create a channel
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Section 1 */}
+                  <div className="border-b border-border-custom pb-2 mb-2">
+                    <MenuButton icon={UserCircle} text="Account Settings" />
+                    <MenuButton icon={SquareUser} text="Switch profile" />
+                    <MenuButton 
+                      icon={LogOut} 
+                      text="Logout" 
+                      onClick={() => { logOut(); setIsUserMenuOpen(false); }} 
+                    />
+                  </div>
+
+                  {/* Section 2 */}
+                  <div className="border-b border-border-custom pb-2 mb-2">
+                    <MenuButton icon={PlaySquare} text="Creator Studio" />
+                    <MenuButton icon={DollarSign} text="Purchases and memberships" />
+                  </div>
+
+                  {/* Section 3 */}
+                  <div className="border-b border-border-custom pb-2 mb-2">
+                    <MenuButton icon={ShieldAlert} text="Your data in YouOut" />
+                    <MenuButton 
+                      icon={resolvedTheme === 'dark' ? Moon : Sun} 
+                      text={`Appearance: ${resolvedTheme === 'dark' ? 'Dark' : 'Light'}`} 
+                      hasChevron 
+                      onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+                    />
+                    <MenuButton icon={Languages} text="Language: English" hasChevron />
+                    <MenuButton icon={ShieldAlert} text="Restricted Mode: Off" hasChevron />
+                    <MenuButton icon={Globe} text="Location: United States" hasChevron />
+                    <MenuButton icon={Keyboard} text="Keyboard shortcuts" />
+                  </div>
+
+                  {/* Section 4 */}
+                  <div className="pb-2">
+                    <MenuButton icon={Settings} text="Settings" />
+                  </div>
+                  
+                  <div className="border-t border-border-custom pt-2">
+                    <MenuButton icon={HelpCircle} text="Help" />
+                    <MenuButton icon={MessageSquare} text="Send feedback" />
                   </div>
                 </div>
-
-                {/* Section 1 */}
-                <div className="border-b border-border-custom pb-2 mb-2">
-                  <MenuButton icon={UserCircle} text="Account Settings" />
-                  <MenuButton icon={SquareUser} text="Switch profile" />
-                  <MenuButton 
-                    icon={LogOut} 
-                    text="Logout" 
-                    onClick={() => { logOut(); setIsUserMenuOpen(false); }} 
-                  />
-                </div>
-
-                {/* Section 2 */}
-                <div className="border-b border-border-custom pb-2 mb-2">
-                  <MenuButton icon={PlaySquare} text="Creator Studio" />
-                  <MenuButton icon={DollarSign} text="Purchases and memberships" />
-                </div>
-
-                {/* Section 3 */}
-                <div className="border-b border-border-custom pb-2 mb-2">
-                  <MenuButton icon={ShieldAlert} text="Your data in YouOut" />
-                  <MenuButton 
-                    icon={resolvedTheme === 'dark' ? Moon : Sun} 
-                    text={`Appearance: ${resolvedTheme === 'dark' ? 'Dark' : 'Light'}`} 
-                    hasChevron 
-                    onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-                  />
-                  <MenuButton icon={Languages} text="Language: English" hasChevron />
-                  <MenuButton icon={ShieldAlert} text="Restricted Mode: Off" hasChevron />
-                  <MenuButton icon={Globe} text="Location: United States" hasChevron />
-                  <MenuButton icon={Keyboard} text="Keyboard shortcuts" />
-                </div>
-
-                {/* Section 4 */}
-                <div className="pb-2">
-                  <MenuButton icon={Settings} text="Settings" />
-                </div>
-                
-                <div className="border-t border-border-custom pt-2">
-                  <MenuButton icon={HelpCircle} text="Help" />
-                  <MenuButton icon={MessageSquare} text="Send feedback" />
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <button 
-            onClick={signIn}
-            className="flex items-center gap-2 ml-1 sm:ml-2 px-3 py-1.5 border border-border-custom rounded-full text-[#3ea6ff] hover:bg-[#3ea6ff]/10 hover:border-[#3ea6ff] transition-all text-sm font-medium"
-          >
-            <div className="w-6 h-6 rounded-full border border-current flex items-center justify-center">
-              <span className="text-[10px]">👤</span>
+              )}
             </div>
-            Sign in
-          </button>
-        )}
+          ) : (
+            <button 
+              onClick={signIn}
+              className="flex items-center gap-2 ml-1 sm:ml-2 px-3 py-1.5 border border-border-custom rounded-full text-[#3ea6ff] hover:bg-[#3ea6ff]/10 hover:border-[#3ea6ff] transition-all text-sm font-medium"
+            >
+              <div className="w-6 h-6 rounded-full border border-current flex items-center justify-center">
+                <span className="text-[10px]">👤</span>
+              </div>
+              Sign in
+            </button>
+          )}
+        </div>
       </div>
       
       <VoiceSearchModal 
