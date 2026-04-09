@@ -53,10 +53,12 @@ export {
   onAuthStateChanged,
   collection, 
   doc, 
+  getDoc,
   setDoc, 
   getDocs, 
   deleteDoc, 
   query, 
+  where,
   orderBy, 
   limit, 
   serverTimestamp
