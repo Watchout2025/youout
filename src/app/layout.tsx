@@ -24,24 +24,43 @@ export const metadata: Metadata = {
   },
   description: "YouOut – Watch free movies and TV shows online in HD. Stream the latest releases in 4K, Hindi, English, BluRay and more.",
   keywords: ["Youout", "Youout App", "watch movies online", "free movies", "watch TV shows", "HD movies", "4K movies", "Hindi movies", "English movies", "BluRay", "stream online", "YouOut"],
-  authors: [{ name: "YouOut Team" }],
+  authors: [{ name: "YouOut" }],
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "https://youout.vercel.app/",
+  },
   icons: {
     icon: "https://www.youtube.com/favicon.ico",
     shortcut: "https://www.youtube.com/favicon.ico",
     apple: "https://www.youtube.com/favicon.ico",
   },
   openGraph: {
-    title: "YouOut - Experience Video Like Never Before",
-    description: "YouOut – Watch free movies and TV shows online in HD. Stream the latest releases in 4K, Hindi, English, BluRay and more.",
-    url: "https://youout.vercel.app",
+    title: "YouOut – Watch Free Movies & TV Shows Online",
+    description: "Stream thousands of movies and TV shows for free in HD. 4K, Hindi, English, BluRay and more on YouOut.",
+    url: "https://youout.vercel.app/",
     siteName: "YouOut",
+    images: [
+      {
+        url: "https://www.youtube.com/img/desktop/yt_1200.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "YouOut",
     description: "YouOut – Watch free movies and TV shows online in HD. Stream the latest releases in 4K, Hindi, English, BluRay and more.",
+    images: ["https://www.youtube.com/img/desktop/yt_1200.png"],
   },
+};
+
+export const viewport = {
+  themeColor: "#0f0f0f",
 };
 
 export default function RootLayout({
