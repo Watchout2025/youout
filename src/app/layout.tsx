@@ -23,7 +23,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "YouOut - Watch Movies, TV Shows, Animes & Dramas Online",
+    default: "YouOut - Discover and Share Videos  with the world",
     template: "%s | YouOut"
   },
   description: "YouOut is Video Sharing Platform Let lets you share Videos Anonymously with the world.",
