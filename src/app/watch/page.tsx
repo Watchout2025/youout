@@ -34,10 +34,10 @@ export default async function WatchPage({ searchParams }: Props) {
   const videos = await fetchVideos();
   const video = videos.find((v) => v.id === vId) || videos[0];
 
-  if (!video) return <div>Video not found</div>;
+  if (!video) return <div className="p-10 text-center text-foreground">Video not found</div>;
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 pb-12 max-w-[1700px] mx-auto lg:px-6">
+    <div className="flex flex-col lg:flex-row gap-6 pb-12 max-w-[1700px] mx-auto lg:px-6 bg-background transition-colors duration-300">
       {/* Main Content */}
       <div className="flex-1 min-w-0">
         <div className="sm:pt-6">
@@ -45,18 +45,18 @@ export default async function WatchPage({ searchParams }: Props) {
         </div>
         
         <div className="px-3 sm:px-0">
-          <h1 className="text-xl font-bold mt-4 line-clamp-2">{video.title}</h1>
+          <h1 className="text-xl font-bold mt-4 line-clamp-2 text-foreground">{video.title}</h1>
           
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-[#272727] flex-shrink-0">
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-sidebar-hover flex-shrink-0 border border-border-custom">
                 <img src={video.channel.avatar} alt={video.channel.name} className="w-full h-full object-cover" />
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="font-bold text-base truncate text-white">{video.channel.name}</span>
+                <span className="font-bold text-base truncate text-foreground">{video.channel.name}</span>
                 <span className="text-xs text-[#aaaaaa] truncate">{video.channel.subscribers} subscribers</span>
               </div>
-              <button className="ml-auto sm:ml-4 bg-white text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-zinc-200 transition-colors">
+              <button className="ml-auto sm:ml-4 bg-foreground text-background px-4 py-2 rounded-full text-sm font-medium hover:opacity-90 transition-all">
                 Subscribe
               </button>
             </div>
@@ -71,22 +71,22 @@ export default async function WatchPage({ searchParams }: Props) {
       </div>
       
       {/* Related Videos Sidebar */}
-      <div className="lg:w-[400px] flex flex-col gap-3 px-3 sm:px-0 mt-4 lg:mt-0">
-        <h2 className="text-sm font-bold sm:hidden mb-2">Up Next</h2>
+      <div className="lg:w-[400px] flex flex-col gap-3 px-3 sm:px-0 sm:pt-6">
+        <h2 className="text-sm font-bold lg:hidden mb-2 text-foreground px-1">Up Next</h2>
         {videos.filter(v => v.id !== video.id).map((v) => (
-          <Link href={`/watch?v=${v.id}`} key={v.id} className="flex gap-2 group">
-            <div className="relative w-40 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-[#272727]">
+          <Link href={`/watch?v=${v.id}`} key={v.id} className="flex gap-2 group p-1 hover:bg-sidebar-hover rounded-lg transition-colors">
+            <div className="relative w-40 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-sidebar-hover">
               <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-              <div className="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] font-medium px-1 py-0.5 rounded">
+              <div className="absolute bottom-1.5 right-1.5 bg-black/80 text-white text-[10px] font-medium px-1.5 py-0.5 rounded">
                 {v.duration}
               </div>
             </div>
             <div className="flex flex-col min-w-0">
-              <h3 className="text-sm font-bold line-clamp-2 leading-tight group-hover:text-blue-400 transition-colors">
+              <h3 className="text-sm font-bold line-clamp-2 leading-tight group-hover:text-[#3ea6ff] transition-colors text-foreground">
                 {v.title}
               </h3>
-              <span className="text-xs text-[#aaaaaa] mt-1 hover:text-white transition-colors">{v.channel.name}</span>
-              <div className="text-xs text-[#aaaaaa] flex items-center gap-1">
+              <span className="text-xs text-[#aaaaaa] mt-1 hover:text-foreground transition-colors truncate">{v.channel.name}</span>
+              <div className="text-xs text-[#aaaaaa] flex items-center gap-1 mt-0.5">
                 <span>{v.views} views</span>
                 <span>•</span>
                 <span>{v.postedAt}</span>
