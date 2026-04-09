@@ -1,9 +1,15 @@
 "use client";
 
-import { Menu, Search, Mic, Video, Bell, ArrowLeft } from "lucide-react";
+import { 
+  Menu, Search, Mic, Video, Bell, ArrowLeft, 
+  LogOut, Settings, HelpCircle, 
+  MessageSquare, Languages, ShieldAlert, Globe, 
+  Keyboard, SquareUser, PlaySquare, DollarSign, 
+  UserCircle, Moon, ChevronRight
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSidebar } from "@/context/SidebarContext";
 import { useAuth } from "@/context/AuthContext";
 import VoiceSearchModal from "./VoiceSearchModal";
@@ -13,9 +19,21 @@ export default function Navbar() {
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isVoiceSearchOpen, setIsVoiceSearchOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { toggleSidebar } = useSidebar();
   const { user, signIn, logOut } = useAuth();
+
+  // Close menu on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSearch = (e?: React.FormEvent, query?: string) => {
     e?.preventDefault();
@@ -122,7 +140,7 @@ export default function Navbar() {
         </button>
         
         {user ? (
-          <div className="relative">
+          <div className="relative" ref={userMenuRef}>
             <button 
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
               className="p-1 hover:bg-[#272727] rounded-full ml-1 sm:ml-2"
@@ -134,17 +152,59 @@ export default function Navbar() {
               />
             </button>
             {isUserMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-[#282828] rounded-xl shadow-lg border border-[#303030] py-2 z-[60]">
-                <div className="px-4 py-2 border-b border-[#303030] mb-2">
-                  <p className="text-sm font-medium truncate">{user.displayName}</p>
-                  <p className="text-xs text-[#aaaaaa] truncate">{user.email}</p>
+              <div className="absolute right-0 mt-2 w-72 bg-[#282828] rounded-xl shadow-2xl border border-[#303030] py-2 z-[60] overflow-y-auto max-h-[90vh]">
+                {/* User Header */}
+                <div className="flex gap-4 px-4 py-3 border-b border-[#303030] mb-2">
+                  <img 
+                    src={user.photoURL || ""} 
+                    alt={user.displayName || "User"} 
+                    className="w-10 h-10 rounded-full"
+                  />
+                  <div className="flex flex-col overflow-hidden">
+                    <p className="text-base font-normal truncate">{user.displayName}</p>
+                    <p className="text-sm text-[#aaaaaa] truncate mb-2">{user.email}</p>
+                    <Link href="/channel" className="text-sm text-[#3ea6ff] hover:text-[#71bbff]">
+                      View your channel
+                    </Link>
+                  </div>
                 </div>
-                <button 
-                  onClick={() => { logOut(); setIsUserMenuOpen(false); }}
-                  className="w-full text-left px-4 py-2 hover:bg-[#3f3f3f] text-sm transition-colors"
-                >
-                  Sign out
-                </button>
+
+                {/* Section 1 */}
+                <div className="border-b border-[#303030] pb-2 mb-2">
+                  <MenuButton icon={UserCircle} text="Google Account" />
+                  <MenuButton icon={SquareUser} text="Switch account" />
+                  <MenuButton 
+                    icon={LogOut} 
+                    text="Sign out" 
+                    onClick={() => { logOut(); setIsUserMenuOpen(false); }} 
+                  />
+                </div>
+
+                {/* Section 2 */}
+                <div className="border-b border-[#303030] pb-2 mb-2">
+                  <MenuButton icon={PlaySquare} text="YouTube Studio" />
+                  <MenuButton icon={DollarSign} text="Purchases and memberships" />
+                </div>
+
+                {/* Section 3 */}
+                <div className="border-b border-[#303030] pb-2 mb-2">
+                  <MenuButton icon={ShieldAlert} text="Your data in YouOut" />
+                  <MenuButton icon={Moon} text="Appearance: Device theme" hasChevron />
+                  <MenuButton icon={Languages} text="Language: English" hasChevron />
+                  <MenuButton icon={ShieldAlert} text="Restricted Mode: Off" hasChevron />
+                  <MenuButton icon={Globe} text="Location: United States" hasChevron />
+                  <MenuButton icon={Keyboard} text="Keyboard shortcuts" />
+                </div>
+
+                {/* Section 4 */}
+                <div className="pb-2">
+                  <MenuButton icon={Settings} text="Settings" />
+                </div>
+                
+                <div className="border-t border-[#303030] pt-2">
+                  <MenuButton icon={HelpCircle} text="Help" />
+                  <MenuButton icon={MessageSquare} text="Send feedback" />
+                </div>
               </div>
             )}
           </div>
@@ -167,5 +227,18 @@ export default function Navbar() {
         onResult={handleVoiceResult}
       />
     </nav>
+  );
+}
+
+function MenuButton({ icon: Icon, text, onClick, hasChevron }: { icon: any, text: string, onClick?: () => void, hasChevron?: boolean }) {
+  return (
+    <button 
+      onClick={onClick}
+      className="w-full flex items-center gap-4 px-4 py-2 hover:bg-[#3f3f3f] transition-colors text-sm font-normal text-white"
+    >
+      <Icon className="w-6 h-6 stroke-[1.2px]" />
+      <span className="flex-1 text-left">{text}</span>
+      {hasChevron && <ChevronRight className="w-5 h-5 text-[#aaaaaa] stroke-[1px]" />}
+    </button>
   );
 }
