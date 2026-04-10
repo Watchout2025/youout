@@ -28,6 +28,14 @@ export default function VideoPlayer({ video }: VideoPlayerProps) {
 
       if (data.playerStatus === 'Ready') {
         console.log("Player is ready");
+        // Start polling for time every 5 seconds
+        const pollInterval = setInterval(() => {
+          iframeRef.current?.contentWindow?.postMessage({ command: 'getTime' }, playerOrigin);
+        }, 5000);
+
+        // Save interval to cleanup later
+        (window as any)._playerPollInterval = pollInterval;
+
         // Check if there is existing progress to resume
         const saved = VideoService.getProgress(video.id);
         if (saved && saved.currentTime > 5) {
@@ -36,18 +44,22 @@ export default function VideoPlayer({ video }: VideoPlayerProps) {
         }
       }
 
-      if (data.currentTime !== undefined) {
+      if (data.currentTime !== undefined && data.duration !== undefined) {
         currentTimeRef.current = data.currentTime;
-        // Save progress periodically (handled by the other useEffect)
-      }
-
-      if (data.duration !== undefined) {
         durationRef.current = data.duration;
+        VideoService.saveProgress(video.id, data.currentTime, data.duration);
+      } else if (data.currentTime !== undefined) {
+        currentTimeRef.current = data.currentTime;
       }
     };
 
     window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+      if ((window as any)._playerPollInterval) {
+        clearInterval((window as any)._playerPollInterval);
+      }
+    };
   }, [video.id]);
 
   // Save progress every 5 seconds or on unmount
