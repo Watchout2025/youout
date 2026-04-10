@@ -1,4 +1,4 @@
-import { fetchVideos, fetchVideoById, extractIdFromSlug, createVideoSlug } from "@/lib/data";
+import { fetchVideos, fetchVideoById, extractIdFromSlug, createVideoSlug, formatISODuration } from "@/lib/data";
 import VideoPlayer from "@/components/VideoPlayer";
 import CommentSection from "@/components/CommentSection";
 import Link from "next/link";
@@ -74,7 +74,7 @@ export default async function WatchPage({ params }: Props) {
     "description": currentVideo.description,
     "thumbnailUrl": [currentVideo.thumbnail],
     "uploadDate": new Date().toISOString(), // Fallback since we don't have exact upload date in mock
-    "duration": "PT0H0M0S", // Would need proper ISO 8601 duration
+    "duration": formatISODuration(currentVideo.durationInSeconds),
     "contentUrl": currentVideo.videoUrl,
     "embedUrl": currentSeoUrl,
     "interactionStatistic": {

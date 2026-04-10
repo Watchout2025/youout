@@ -11,6 +11,7 @@ export interface Video {
   thumbnail: string;
   preview?: string;
   duration: string;
+  durationInSeconds: number;
   views: string;
   postedAt: string;
   channel: Channel;
@@ -93,6 +94,7 @@ function mapApiVideoToVideo(item: ApiVideo): Video {
     thumbnail: `https://asset.rpmhash.com${item.poster}`,
     preview: `https://asset.rpmhash.com${item.preview}`,
     duration: formatDuration(item.duration),
+    durationInSeconds: item.duration,
     views: formatViews(item.play),
     postedAt: formatTimeAgo(item.createdAt),
     channel: MOCK_CHANNELS["default"],
@@ -195,6 +197,18 @@ export async function fetchVideoById(id: string): Promise<Video | null> {
     console.error(`Error fetching video ${id}:`, error);
     return null;
   }
+}
+
+export function formatISODuration(seconds: number): string {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  
+  let result = "PT";
+  if (h > 0) result += `${h}H`;
+  if (m > 0 || h > 0) result += `${m}M`;
+  result += `${s}S`;
+  return result;
 }
 
 function formatDuration(seconds: number): string {
