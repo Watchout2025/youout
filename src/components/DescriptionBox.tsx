@@ -3,24 +3,28 @@
 import { Video } from "@/lib/data";
 import { useState } from "react";
 
-export default function DescriptionBox({ video }: { video: Video }) {
+interface DescriptionBoxProps {
+  video: Video;
+}
+
+export default function DescriptionBox({ video }: DescriptionBoxProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="mt-4 bg-[#272727] rounded-xl p-3 hover:bg-[#3f3f3f] cursor-pointer transition-colors group">
-      <div className="text-sm font-medium mb-1">
-        {video.views} views • {video.postedAt}
+    <div 
+      className={`mt-4 p-3 bg-sidebar-hover rounded-xl cursor-pointer hover:bg-foreground/5 transition-colors duration-300 ${
+        !isExpanded ? "line-clamp-2" : ""
+      }`}
+      onClick={() => setIsExpanded(!isExpanded)}
+    >
+      <div className="flex gap-2 text-sm font-bold mb-1 text-foreground">
+        <span>{video.views} views</span>
+        <span>{video.postedAt}</span>
       </div>
-      <p className={`text-sm leading-relaxed text-[#f1f1f1] ${!isExpanded && "line-clamp-2"}`}>
+      <p className={`text-sm text-foreground whitespace-pre-wrap ${!isExpanded ? "line-clamp-3" : ""}`}>
         {video.description}
       </p>
-      <button 
-        onClick={(e) => {
-          e.stopPropagation();
-          setIsExpanded(!isExpanded);
-        }}
-        className="text-sm font-bold mt-1"
-      >
+      <button className="text-sm font-bold mt-1 text-foreground">
         {isExpanded ? "Show less" : "...more"}
       </button>
     </div>

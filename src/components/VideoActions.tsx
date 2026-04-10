@@ -1,68 +1,51 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { ThumbsUp, ThumbsDown, Share2, Download, MoreHorizontal } from "lucide-react";
 import { Video } from "@/lib/data";
-import { VideoService } from "@/lib/videoService";
-import { ThumbsUp, ThumbsDown, Share2, Download, Scissors, MoreHorizontal, Clock } from "lucide-react";
+import { useState } from "react";
 
-export default function VideoActions({ video }: { video: Video }) {
-  const [liked, setLiked] = useState(false);
-  const [watchLater, setWatchLater] = useState(false);
+interface VideoActionsProps {
+  video: Video;
+}
 
-  useEffect(() => {
-    // Add to history on mount
-    VideoService.addToHistory(video);
-    
-    // Check initial status
-    setLiked(VideoService.isLiked(video.id));
-    setWatchLater(VideoService.isInWatchLater(video.id));
-  }, [video.id]);
-
-  const handleLike = () => {
-    const isNowLiked = VideoService.toggleLiked(video);
-    setLiked(isNowLiked);
-  };
-
-  const handleWatchLater = () => {
-    const isNowInList = VideoService.toggleWatchLater(video);
-    setWatchLater(isNowInList);
-  };
+export default function VideoActions({ video }: VideoActionsProps) {
+  const [isLiked, setIsLiked] = useState(false);
+  const [isDisliked, setIsDisliked] = useState(false);
 
   return (
-    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 sm:pb-0">
-      <div className="flex items-center bg-[#272727] rounded-full">
+    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+      {/* Like/Dislike Group */}
+      <div className="flex items-center bg-sidebar-hover rounded-full transition-colors">
         <button 
-          onClick={handleLike}
-          className={`flex items-center gap-2 px-4 py-2 hover:bg-[#3f3f3f] border-r border-[#303030] transition-colors ${liked ? "text-blue-400" : "text-white"}`}
+          onClick={() => { setIsLiked(!isLiked); setIsDisliked(false); }}
+          className="flex items-center gap-2 px-4 py-2 hover:bg-foreground/10 rounded-l-full border-r border-border-custom transition-colors"
         >
-          <ThumbsUp className={`w-5 h-5 ${liked ? "fill-blue-400" : ""}`} />
-          <span className="text-sm font-medium">124K</span>
+          <ThumbsUp className={`w-5 h-5 ${isLiked ? "fill-foreground" : ""}`} />
+          <span className="text-sm font-medium text-foreground">{video.views}</span>
         </button>
-        <button className="px-4 py-2 hover:bg-[#3f3f3f] transition-colors text-white">
-          <ThumbsDown className="w-5 h-5" />
+        <button 
+          onClick={() => { setIsDisliked(!isDisliked); setIsLiked(false); }}
+          className="px-4 py-2 hover:bg-foreground/10 rounded-r-full transition-colors"
+        >
+          <ThumbsDown className={`w-5 h-5 ${isDisliked ? "fill-foreground" : ""}`} />
         </button>
       </div>
-      
-      <button 
-        onClick={handleWatchLater}
-        className={`flex items-center gap-2 px-4 py-2 bg-[#272727] hover:bg-[#3f3f3f] rounded-full transition-colors whitespace-nowrap ${watchLater ? "text-blue-400" : "text-white"}`}
-      >
-        <Clock className={`w-5 h-5 ${watchLater ? "fill-blue-400" : ""}`} />
-        <span className="text-sm font-medium">Later</span>
+
+      {/* Share Button */}
+      <button className="flex items-center gap-2 px-4 py-2 bg-sidebar-hover hover:bg-foreground/10 rounded-full transition-colors flex-shrink-0">
+        <Share2 className="w-5 h-5 text-foreground" />
+        <span className="text-sm font-medium text-foreground">Share</span>
       </button>
 
-      <button className="flex items-center gap-2 px-4 py-2 bg-[#272727] hover:bg-[#3f3f3f] rounded-full transition-colors whitespace-nowrap text-white">
-        <Share2 className="w-5 h-5" />
-        <span className="text-sm font-medium">Share</span>
-      </button>
-      
-      <button className="flex items-center gap-2 px-4 py-2 bg-[#272727] hover:bg-[#3f3f3f] rounded-full transition-colors whitespace-nowrap hidden sm:flex text-white">
-        <Download className="w-5 h-5" />
-        <span className="text-sm font-medium">Download</span>
+      {/* Download Button */}
+      <button className="flex items-center gap-2 px-4 py-2 bg-sidebar-hover hover:bg-foreground/10 rounded-full transition-colors flex-shrink-0">
+        <Download className="w-5 h-5 text-foreground" />
+        <span className="text-sm font-medium text-foreground">Download</span>
       </button>
 
-      <button className="p-2 bg-[#272727] hover:bg-[#3f3f3f] rounded-full transition-colors text-white">
-        <MoreHorizontal className="w-5 h-5" />
+      {/* More Button */}
+      <button className="p-2 bg-sidebar-hover hover:bg-foreground/10 rounded-full transition-colors flex-shrink-0">
+        <MoreHorizontal className="w-5 h-5 text-foreground" />
       </button>
     </div>
   );
