@@ -1,6 +1,6 @@
 "use client";
 
-import { Video } from "@/lib/data";
+import { Video, createVideoSlug } from "@/lib/data";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { VideoService, VideoProgress } from "@/lib/videoService";
@@ -37,7 +37,7 @@ export default function VideoCard({ video }: VideoCardProps) {
 
   return (
     <Link 
-      href={`/watch?v=${video.id}`} 
+      href={`/watch/${createVideoSlug(video.title, video.id)}`} 
       className="flex flex-col gap-3 group p-2 rounded-xl transition-all duration-300 ease-out hover:bg-sidebar-hover"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

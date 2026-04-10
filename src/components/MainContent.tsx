@@ -5,7 +5,7 @@ import { useSidebar } from "@/context/SidebarContext";
 
 export default function MainContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isWatchPage = pathname === "/watch";
+  const isWatchPage = pathname.startsWith("/watch/");
   const { isCollapsed } = useSidebar();
 
   return (

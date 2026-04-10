@@ -1,4 +1,4 @@
-import { fetchVideos, fetchVideoById } from "@/lib/data";
+import { fetchVideos, fetchVideoById, extractIdFromSlug, createVideoSlug } from "@/lib/data";
 import VideoPlayer from "@/components/VideoPlayer";
 import CommentSection from "@/components/CommentSection";
 import Link from "next/link";
@@ -7,29 +7,30 @@ import VideoActions from "@/components/VideoActions";
 import { Metadata } from "next";
 
 type Props = {
-  searchParams: Promise<{ v: string }>;
+  params: Promise<{ slug: string }>;
 };
 
-export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const vId = (await searchParams).v;
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const slug = (await params).slug;
+  const vId = extractIdFromSlug(slug);
   const video = await fetchVideoById(vId);
 
   if (!video) return { title: "Video Not Found" };
 
   const description = video.description.substring(0, 160);
-  const url = `https://youout.vercel.app/watch?v=${vId}`;
+  const seoUrl = `https://youout.vercel.app/watch/${createVideoSlug(video.title, video.id)}`;
 
   return {
     title: video.title,
     description: description,
     keywords: [video.title, video.channel.name, "YouOut", "video", "watch online"],
     alternates: {
-      canonical: url,
+      canonical: seoUrl,
     },
     openGraph: {
       title: video.title,
       description: description,
-      url: url,
+      url: seoUrl,
       siteName: "YouOut",
       images: [
         {
@@ -50,8 +51,10 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   };
 }
 
-export default async function WatchPage({ searchParams }: Props) {
-  const vId = (await searchParams).v;
+export default async function WatchPage({ params }: Props) {
+  const slug = (await params).slug;
+  const vId = extractIdFromSlug(slug);
+  
   const [video, allVideos] = await Promise.all([
     fetchVideoById(vId),
     fetchVideos()
@@ -60,6 +63,8 @@ export default async function WatchPage({ searchParams }: Props) {
   const currentVideo = video || allVideos[0];
 
   if (!currentVideo) return <div className="p-10 text-center text-foreground">Video not found</div>;
+
+  const currentSeoUrl = `https://youout.vercel.app/watch/${createVideoSlug(currentVideo.title, currentVideo.id)}`;
 
   // JSON-LD for VideoObject
   const jsonLd = {
@@ -71,7 +76,7 @@ export default async function WatchPage({ searchParams }: Props) {
     "uploadDate": new Date().toISOString(), // Fallback since we don't have exact upload date in mock
     "duration": "PT0H0M0S", // Would need proper ISO 8601 duration
     "contentUrl": currentVideo.videoUrl,
-    "embedUrl": `https://youout.vercel.app/watch?v=${currentVideo.id}`,
+    "embedUrl": currentSeoUrl,
     "interactionStatistic": {
       "@type": "InteractionCounter",
       "interactionType": { "@type": "WatchAction" },
@@ -86,7 +91,6 @@ export default async function WatchPage({ searchParams }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       {/* Main Content */}
-
       <div className="flex-1 min-w-0">
         <div className="sm:pt-6">
           <VideoPlayer video={currentVideo} />
@@ -122,7 +126,7 @@ export default async function WatchPage({ searchParams }: Props) {
       <div className="lg:w-[400px] flex flex-col gap-3 px-3 sm:px-0 sm:pt-6">
         <h2 className="text-sm font-bold lg:hidden mb-2 text-foreground px-1">Up Next</h2>
         {allVideos.filter(v => v.id !== currentVideo.id).map((v) => (
-          <Link href={`/watch?v=${v.id}`} key={v.id} className="flex gap-2 group p-1 hover:bg-sidebar-hover rounded-lg transition-colors">
+          <Link href={`/watch/${createVideoSlug(v.title, v.id)}`} key={v.id} className="flex gap-2 group p-1 hover:bg-sidebar-hover rounded-lg transition-colors">
             <div className="relative w-40 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-sidebar-hover">
               <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
               <div className="absolute bottom-1.5 right-1.5 bg-black/80 text-white text-[10px] font-medium px-1.5 py-0.5 rounded">

@@ -32,7 +32,7 @@ const SETTINGS_LINKS = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const isWatchPage = pathname === "/watch";
+  const isWatchPage = pathname.startsWith("/watch/");
   const { isCollapsed } = useSidebar();
 
   if (isWatchPage || isCollapsed) return null;

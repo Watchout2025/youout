@@ -18,6 +18,19 @@ export interface Video {
   videoUrl: string;
 }
 
+export function createVideoSlug(title: string, id: string): string {
+  const cleanTitle = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-") // Replace non-alphanumeric with hyphens
+    .replace(/(^-|-$)+/g, ""); // Remove leading or trailing hyphens
+  return `${cleanTitle}-${id}`;
+}
+
+export function extractIdFromSlug(slug: string): string {
+  const parts = slug.split("-");
+  return parts[parts.length - 1];
+}
+
 export interface Comment {
   id: string;
   user: string;
