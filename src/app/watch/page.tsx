@@ -1,4 +1,4 @@
-import { fetchVideos } from "@/lib/data";
+import { fetchVideos, fetchVideoById } from "@/lib/data";
 import VideoPlayer from "@/components/VideoPlayer";
 import CommentSection from "@/components/CommentSection";
 import Link from "next/link";
@@ -12,8 +12,7 @@ type Props = {
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const vId = (await searchParams).v;
-  const videos = await fetchVideos();
-  const video = videos.find((v) => v.id === vId);
+  const video = await fetchVideoById(vId);
 
   if (!video) return { title: "Video Not Found" };
 
@@ -31,40 +30,44 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
 export default async function WatchPage({ searchParams }: Props) {
   const vId = (await searchParams).v;
-  const videos = await fetchVideos();
-  const video = videos.find((v) => v.id === vId) || videos[0];
+  const [video, allVideos] = await Promise.all([
+    fetchVideoById(vId),
+    fetchVideos()
+  ]);
 
-  if (!video) return <div className="p-10 text-center text-foreground">Video not found</div>;
+  const currentVideo = video || allVideos[0];
+
+  if (!currentVideo) return <div className="p-10 text-center text-foreground">Video not found</div>;
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 pb-12 max-w-[1700px] mx-auto lg:px-6 bg-background transition-colors duration-300">
       {/* Main Content */}
       <div className="flex-1 min-w-0">
         <div className="sm:pt-6">
-          <VideoPlayer videoId={video.id} />
+          <VideoPlayer videoId={currentVideo.id} />
         </div>
         
         <div className="px-3 sm:px-0">
-          <h1 className="text-xl font-bold mt-4 line-clamp-2 text-foreground">{video.title}</h1>
+          <h1 className="text-xl font-bold mt-4 line-clamp-2 text-foreground">{currentVideo.title}</h1>
           
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full overflow-hidden bg-sidebar-hover flex-shrink-0 border border-border-custom">
-                <img src={video.channel.avatar} alt={video.channel.name} className="w-full h-full object-cover" />
+                <img src={currentVideo.channel.avatar} alt={currentVideo.channel.name} className="w-full h-full object-cover" />
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="font-bold text-base truncate text-foreground">{video.channel.name}</span>
-                <span className="text-xs text-[#aaaaaa] truncate">{video.channel.subscribers} subscribers</span>
+                <span className="font-bold text-base truncate text-foreground">{currentVideo.channel.name}</span>
+                <span className="text-xs text-[#aaaaaa] truncate">{currentVideo.channel.subscribers} subscribers</span>
               </div>
               <button className="ml-auto sm:ml-4 bg-foreground text-background px-4 py-2 rounded-full text-sm font-medium hover:opacity-90 transition-all">
                 Subscribe
               </button>
             </div>
             
-            <VideoActions video={video} />
+            <VideoActions video={currentVideo} />
           </div>
           
-          <DescriptionBox video={video} />
+          <DescriptionBox video={currentVideo} />
           
           <CommentSection />
         </div>
@@ -73,7 +76,7 @@ export default async function WatchPage({ searchParams }: Props) {
       {/* Related Videos Sidebar */}
       <div className="lg:w-[400px] flex flex-col gap-3 px-3 sm:px-0 sm:pt-6">
         <h2 className="text-sm font-bold lg:hidden mb-2 text-foreground px-1">Up Next</h2>
-        {videos.filter(v => v.id !== video.id).map((v) => (
+        {allVideos.filter(v => v.id !== currentVideo.id).map((v) => (
           <Link href={`/watch?v=${v.id}`} key={v.id} className="flex gap-2 group p-1 hover:bg-sidebar-hover rounded-lg transition-colors">
             <div className="relative w-40 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-sidebar-hover">
               <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />

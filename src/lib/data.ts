@@ -66,6 +66,21 @@ interface ApiVideo {
   duration: number;
 }
 
+function mapApiVideoToVideo(item: ApiVideo): Video {
+  return {
+    id: item.id,
+    title: item.name.replaceAll(".", " "),
+    thumbnail: `https://asset.rpmhash.com${item.poster}`,
+    preview: `https://asset.rpmhash.com${item.preview}`,
+    duration: formatDuration(item.duration),
+    views: formatViews(item.play),
+    postedAt: formatTimeAgo(item.createdAt),
+    channel: MOCK_CHANNELS["default"],
+    description: `This is a high-quality video uploaded to YouOut. Resolution: ${item.resolution}, Codec: ${item.codec}. Check out more details on our platform.`,
+    videoUrl: item.assetUrl,
+  };
+}
+
 export async function fetchVideos(search?: string, page: number = 1): Promise<Video[]> {
   try {
     let query = search;
@@ -103,22 +118,44 @@ export async function fetchVideos(search?: string, page: number = 1): Promise<Vi
       json = await res.json();
     }
 
-    return json.data.map((item: ApiVideo) => ({
-      id: item.id,
-      title: item.name.replaceAll(".", " "),
-      thumbnail: `https://asset.rpmhash.com${item.poster}`,
-      preview: `https://asset.rpmhash.com${item.preview}`,
-      duration: formatDuration(item.duration),
-      views: formatViews(item.play),
-      postedAt: formatTimeAgo(item.createdAt),
-      channel: MOCK_CHANNELS["default"],
-      description: `This is a high-quality video uploaded to YouOut. Resolution: ${item.resolution}, Codec: ${item.codec}. Check out more details on our platform.`,
-      videoUrl: item.assetUrl,
-    }));
+    return json.data.map((item: ApiVideo) => mapApiVideoToVideo(item));
 
   } catch (error) {
     console.error("Error fetching videos:", error);
     return [];
+  }
+}
+
+export async function fetchVideoById(id: string): Promise<Video | null> {
+  try {
+    let json;
+    
+    // Server-side
+    if (typeof window === "undefined") {
+      const API_TOKEN = "adb3ca178449bc63c7ecbb66";
+      const url = `https://rpmshare.com/api/v1/video/manage/${id}`;
+      
+      const res = await fetch(url, {
+        headers: {
+          "api-token": API_TOKEN,
+          "accept": "application/json"
+        }
+      });
+      json = await res.json();
+    } 
+    // Client-side
+    else {
+      const url = `/api/videos/${id}`;
+      const res = await fetch(url);
+      json = await res.json();
+    }
+
+    if (!json.data) return null;
+    return mapApiVideoToVideo(json.data);
+
+  } catch (error) {
+    console.error(`Error fetching video ${id}:`, error);
+    return null;
   }
 }
 
