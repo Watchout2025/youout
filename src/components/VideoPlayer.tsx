@@ -84,6 +84,7 @@ export default function VideoPlayer({ video }: VideoPlayerProps) {
   return (
     <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black shadow-lg">
       <iframe
+        key={video.id}
         ref={iframeRef}
         width="100%"
         height="100%"
