@@ -44,7 +44,7 @@ export default async function WatchPage({ searchParams }: Props) {
       {/* Main Content */}
       <div className="flex-1 min-w-0">
         <div className="sm:pt-6">
-          <VideoPlayer videoId={currentVideo.id} />
+          <VideoPlayer video={currentVideo} />
         </div>
         
         <div className="px-3 sm:px-0">
