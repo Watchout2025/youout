@@ -67,9 +67,16 @@ interface ApiVideo {
 }
 
 function mapApiVideoToVideo(item: ApiVideo): Video {
+  // Clean title: remove extensions, replace dots with spaces, trim
+  let cleanTitle = item.name
+    .replace(/\.(mp4|mkv|avi|flv|webm|mov)$/i, "") // Remove common extensions
+    .replace(/\./g, " ")                           // Replace all dots with spaces
+    .replace(/\s+/g, " ")                          // Collapse multiple spaces
+    .trim();
+
   return {
     id: item.id,
-    title: item.name.replaceAll(".", " "),
+    title: cleanTitle,
     thumbnail: `https://asset.rpmhash.com${item.poster}`,
     preview: `https://asset.rpmhash.com${item.preview}`,
     duration: formatDuration(item.duration),
