@@ -151,10 +151,21 @@ export async function fetchVideoById(id: string): Promise<Video | null> {
       json = await res.json();
     }
 
-    // Handle both { data: {...} } and { data: [...] } (if API returns array for single ID)
-    const videoData = Array.isArray(json.data) ? json.data[0] : json.data;
+    // The API might return the object directly OR wrapped in 'data'
+    // Let's check for 'id' directly on the response first
+    let videoData = null;
+    
+    if (json.id) {
+      videoData = json;
+    } else if (json.data) {
+      videoData = Array.isArray(json.data) ? json.data[0] : json.data;
+    }
 
-    if (!videoData) return null;
+    if (!videoData || !videoData.id) {
+      console.warn(`No valid video data found in response for ID ${id}`);
+      return null;
+    }
+    
     return mapApiVideoToVideo(videoData);
 
   } catch (error) {
