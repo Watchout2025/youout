@@ -21,9 +21,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: route === '' ? 1 : 0.8,
   }));
 
-  // Dynamic video routes - Fetch more pages to include more videos
+  // Dynamic video routes - Fetch limited pages for stability in Search Console
   try {
-    const pagesToFetch = 50; // Fetch 50 pages * 20 = 1000 videos for sitemap
+    const pagesToFetch = 5; // Fetch 5 pages * 20 = 100 videos for sitemap
     const videoRequests = [];
     
     for (let i = 1; i <= pagesToFetch; i++) {
