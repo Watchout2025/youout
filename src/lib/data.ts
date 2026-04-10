@@ -118,6 +118,7 @@ export async function fetchVideos(search?: string, page: number = 1): Promise<Vi
       json = await res.json();
     }
 
+    if (!json.data || !Array.isArray(json.data)) return [];
     return json.data.map((item: ApiVideo) => mapApiVideoToVideo(item));
 
   } catch (error) {
@@ -145,13 +146,16 @@ export async function fetchVideoById(id: string): Promise<Video | null> {
     } 
     // Client-side
     else {
-      const url = `/api/videos/${id}`;
+      const url = `/api/video/${id}`;
       const res = await fetch(url);
       json = await res.json();
     }
 
-    if (!json.data) return null;
-    return mapApiVideoToVideo(json.data);
+    // Handle both { data: {...} } and { data: [...] } (if API returns array for single ID)
+    const videoData = Array.isArray(json.data) ? json.data[0] : json.data;
+
+    if (!videoData) return null;
+    return mapApiVideoToVideo(videoData);
 
   } catch (error) {
     console.error(`Error fetching video ${id}:`, error);
