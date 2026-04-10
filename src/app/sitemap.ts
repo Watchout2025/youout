@@ -19,10 +19,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: route === '' ? 1 : 0.8,
   }));
 
-  // Dynamic video routes
+  // Dynamic video routes - Fetch more pages to include more videos
   try {
-    const videos = await fetchVideos();
-    const videoRoutes = videos.map((video) => ({
+    const pagesToFetch = 50; // Fetch 50 pages * 20 = 1000 videos for sitemap
+    const videoRequests = [];
+    
+    for (let i = 1; i <= pagesToFetch; i++) {
+      videoRequests.push(fetchVideos(undefined, i, 20));
+    }
+    
+    const videoResults = await Promise.all(videoRequests);
+    const allVideos = videoResults.flat();
+
+    const videoRoutes = allVideos.map((video) => ({
       url: `${baseUrl}/watch?v=${video.id}`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,

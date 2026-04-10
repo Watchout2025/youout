@@ -88,7 +88,7 @@ function mapApiVideoToVideo(item: ApiVideo): Video {
   };
 }
 
-export async function fetchVideos(search?: string, page: number = 1): Promise<Video[]> {
+export async function fetchVideos(search?: string, page: number = 1, perPage: number = 20): Promise<Video[]> {
   try {
     let query = search;
     if (query) {
@@ -102,6 +102,7 @@ export async function fetchVideos(search?: string, page: number = 1): Promise<Vi
     const params = new URLSearchParams();
     if (query) params.append("search", query);
     params.append("page", page.toString());
+    params.append("per_page", perPage.toString());
 
     let json;
     
