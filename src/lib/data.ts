@@ -111,6 +111,7 @@ export async function fetchVideos(search?: string, page: number = 1): Promise<Vi
       const url = `https://rpmshare.com/api/v1/video/manage?${params.toString()}`;
       
       const res = await fetch(url, {
+        cache: "no-store",
         headers: {
           "api-token": API_TOKEN,
           "accept": "application/json"
@@ -144,6 +145,7 @@ export async function fetchVideoById(id: string): Promise<Video | null> {
       const url = `https://rpmshare.com/api/v1/video/manage/${id}`;
       
       const res = await fetch(url, {
+        cache: "no-store",
         headers: {
           "api-token": API_TOKEN,
           "accept": "application/json"
