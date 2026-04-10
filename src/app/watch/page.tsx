@@ -16,14 +16,36 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
   if (!video) return { title: "Video Not Found" };
 
+  const description = video.description.substring(0, 160);
+  const url = `https://youout.vercel.app/watch?v=${vId}`;
+
   return {
     title: video.title,
-    description: video.description.substring(0, 160),
+    description: description,
+    keywords: [video.title, video.channel.name, "YouOut", "video", "watch online"],
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title: video.title,
-      description: video.description.substring(0, 160),
-      images: [video.thumbnail],
+      description: description,
+      url: url,
+      siteName: "YouOut",
+      images: [
+        {
+          url: video.thumbnail,
+          width: 1280,
+          height: 720,
+          alt: video.title,
+        },
+      ],
       type: "video.other",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: video.title,
+      description: description,
+      images: [video.thumbnail],
     },
   };
 }
@@ -39,9 +61,32 @@ export default async function WatchPage({ searchParams }: Props) {
 
   if (!currentVideo) return <div className="p-10 text-center text-foreground">Video not found</div>;
 
+  // JSON-LD for VideoObject
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "name": currentVideo.title,
+    "description": currentVideo.description,
+    "thumbnailUrl": [currentVideo.thumbnail],
+    "uploadDate": new Date().toISOString(), // Fallback since we don't have exact upload date in mock
+    "duration": "PT0H0M0S", // Would need proper ISO 8601 duration
+    "contentUrl": currentVideo.videoUrl,
+    "embedUrl": `https://youout.vercel.app/watch?v=${currentVideo.id}`,
+    "interactionStatistic": {
+      "@type": "InteractionCounter",
+      "interactionType": { "@type": "WatchAction" },
+      "userInteractionCount": currentVideo.views.replace(/[^0-9]/g, '')
+    }
+  };
+
   return (
     <div className="flex flex-col lg:flex-row gap-6 pb-12 max-w-[1700px] mx-auto lg:px-6 bg-background transition-colors duration-300">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Main Content */}
+
       <div className="flex-1 min-w-0">
         <div className="sm:pt-6">
           <VideoPlayer video={currentVideo} />

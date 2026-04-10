@@ -9,10 +9,17 @@ type Props = {
 };
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const query = (await searchParams).search_query;
+  const query = (await searchParams).search_query || "";
   return {
     title: query ? `${query}` : "Search Results",
-    description: `Search results for ${query} on YouOut.`,
+    description: query ? `Search results for "${query}" on YouOut. Watch the best videos related to ${query}.` : "Search for videos on YouOut.",
+    alternates: {
+      canonical: `https://youout.vercel.app/results${query ? `?search_query=${encodeURIComponent(query)}` : ""}`,
+    },
+    robots: {
+      index: false, // Usually search result pages are not indexed to avoid duplicate content
+      follow: true,
+    }
   };
 }
 
