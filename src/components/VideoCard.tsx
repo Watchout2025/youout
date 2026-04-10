@@ -2,7 +2,8 @@
 
 import { Video } from "@/lib/data";
 import Link from "next/link";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { VideoService, VideoProgress } from "@/lib/videoService";
 
 interface VideoCardProps {
   video: Video;
@@ -10,7 +11,16 @@ interface VideoCardProps {
 
 export default function VideoCard({ video }: VideoCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [progress, setProgress] = useState<VideoProgress | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    // Load progress for this video
+    const savedProgress = VideoService.getProgress(video.id);
+    if (savedProgress) {
+      setProgress(savedProgress);
+    }
+  }, [video.id]);
 
   const handleMouseEnter = () => {
     timeoutRef.current = setTimeout(() => {
@@ -22,6 +32,8 @@ export default function VideoCard({ video }: VideoCardProps) {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setIsHovered(false);
   };
+
+  const progressPercent = progress ? (progress.currentTime / progress.duration) * 100 : 0;
 
   return (
     <Link 
@@ -46,6 +58,16 @@ export default function VideoCard({ video }: VideoCardProps) {
             alt={video.title}
             className="w-full h-full object-cover"
           />
+        )}
+        
+        {/* Progress Bar */}
+        {progress && (
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 z-20">
+            <div 
+              className="h-full bg-red-600 transition-all duration-300" 
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
         )}
         
         {!isHovered && (

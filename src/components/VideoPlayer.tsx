@@ -10,6 +10,8 @@ interface VideoPlayerProps {
 
 export default function VideoPlayer({ video }: VideoPlayerProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const currentTimeRef = useRef(0);
+  const durationRef = useRef(0);
 
   useEffect(() => {
     if (video) {
@@ -19,36 +21,51 @@ export default function VideoPlayer({ video }: VideoPlayerProps) {
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      // Security: Check origin if needed, though the player origin might be dynamic
       const playerOrigin = "https://watchout.rpmvid.com";
       if (event.origin !== playerOrigin) return;
 
       const data = event.data;
 
-      // Handle Player Ready
       if (data.playerStatus === 'Ready') {
         console.log("Player is ready");
-        // Example: Seek to 10 seconds if needed
-        // iframeRef.current?.contentWindow?.postMessage({ command: 'seek', value: 10 }, playerOrigin);
+        // Check if there is existing progress to resume
+        const saved = VideoService.getProgress(video.id);
+        if (saved && saved.currentTime > 5) {
+          console.log(`Resuming from ${saved.currentTime}s`);
+          iframeRef.current?.contentWindow?.postMessage({ command: 'seek', value: saved.currentTime }, playerOrigin);
+        }
       }
 
-      // Handle Current Time updates
       if (data.currentTime !== undefined) {
-        // You could use this to save progress
-        // console.log("Current time:", data.currentTime);
+        currentTimeRef.current = data.currentTime;
+        // Save progress periodically (handled by the other useEffect)
       }
 
-      // Handle Duration
       if (data.duration !== undefined) {
-        // console.log("Duration:", data.duration);
+        durationRef.current = data.duration;
       }
     };
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, []);
+  }, [video.id]);
 
-  // Determine host for API parameter
+  // Save progress every 5 seconds or on unmount
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (currentTimeRef.current > 0 && durationRef.current > 0) {
+        VideoService.saveProgress(video.id, currentTimeRef.current, durationRef.current);
+      }
+    }, 5000);
+
+    return () => {
+      clearInterval(interval);
+      if (currentTimeRef.current > 0 && durationRef.current > 0) {
+        VideoService.saveProgress(video.id, currentTimeRef.current, durationRef.current);
+      }
+    };
+  }, [video.id]);
+
   const host = typeof window !== "undefined" ? window.location.host : "youout.vercel.app";
   const playerUrl = `https://watchout.rpmvid.com/#${video.id}&api=${host}`;
 
