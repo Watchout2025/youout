@@ -6,6 +6,8 @@ import DescriptionBox from "@/components/DescriptionBox";
 import VideoActions from "@/components/VideoActions";
 import { Metadata } from "next";
 
+export const runtime = "edge";
+
 type Props = {
   params: Promise<{ slug: string }>;
 };

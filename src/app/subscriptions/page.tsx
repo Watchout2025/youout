@@ -2,6 +2,8 @@ import VideoCard from "@/components/VideoCard";
 import { fetchVideos } from "@/lib/data";
 import { Metadata } from "next";
 
+export const runtime = "edge";
+
 export const metadata: Metadata = {
   title: "Subscriptions",
   description: "Stay up to date with the latest videos from your favorite creators on YouOut.",

@@ -4,6 +4,8 @@ import { SlidersHorizontal } from "lucide-react";
 import { Metadata } from "next";
 import InfiniteScroll from "@/components/InfiniteScroll";
 
+export const runtime = "edge";
+
 type Props = {
   searchParams: Promise<{ search_query: string }>;
 };
