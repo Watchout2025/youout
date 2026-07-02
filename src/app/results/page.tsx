@@ -39,7 +39,7 @@ export default async function ResultsPage({ searchParams }: Props) {
       </div>
 
       {initialVideos.length > 0 ? (
-        <InfiniteScroll initialVideos={initialVideos} searchQuery={query} />
+        <InfiniteScroll key={query} initialVideos={initialVideos} searchQuery={query} />
       ) : (
         <div className="text-center py-20">
           <h2 className="text-xl font-bold text-white">No results found for &quot;{query}&quot;</h2>
